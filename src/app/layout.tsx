@@ -29,7 +29,7 @@ const vt323 = VT323({
 });
 
 export const metadata: Metadata = {
-  title: "4byte.sourcify.dev - Ethereum Signature Database",
+  title: "4byte.sourcify.dev - Sourcify Ethereum Signature Database",
   description: "Search and lookup Ethereum function and event signatures from Sourcify",
   keywords: ["Ethereum", "Smart Contracts", "Sourcify", "Blockchain", "Solidity", "4byte", "Signatures"],
   authors: [{ name: "Sourcify" }],
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     siteName: "4byte.sourcify.dev",
     images: [
       {
-        url: "https://sourcify.dev/sourcify-logo.svg",
+        url: "https://4byte.sourcify.dev/sourcify-eth-card.png",
         width: 1200,
         height: 630,
         alt: "Sourcify Signature Database",
