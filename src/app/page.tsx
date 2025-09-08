@@ -297,7 +297,7 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {results.slice(0, 50).map((result, index) => (
+                  {results.map((result, index) => (
                     <tr key={`${result.hex_signature}-${index}`} className="hover:bg-gray-50">
                       <td className="px-6 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-2">
@@ -316,11 +316,6 @@ export default function Home() {
                 </tbody>
               </table>
             </div>
-            {results.length > 50 && (
-              <div className="px-6 py-3 bg-gray-50 text-sm text-gray-500 text-center">
-                Showing first 50 of {results.length} results
-              </div>
-            )}
           </div>
         )}
       </div>
