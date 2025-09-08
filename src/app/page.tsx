@@ -289,7 +289,7 @@ export default function Home() {
         {!loading && results.length > 0 && (
           <>
             <div className="text-sm text-gray-600">Showing {results.length} results</div>
-            {results.length % 1 === 0 && (
+            {results.length % 100 === 0 && (
               <div className="text-sm text-gray-600">
                 Results are limited to 100 for each type. Try to be more specific with the query.
               </div>
