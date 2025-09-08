@@ -2,20 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-
-const copyToClipboard = async (text: string) => {
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch (err) {
-    // Fallback for older browsers
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textArea);
-  }
-};
+import CopyButton from "@/components/CopyButton";
 
 interface SearchResult {
   name: string;
@@ -41,60 +28,150 @@ interface Stats {
   event: number;
 }
 
+// Example selectors for users to try
+const exampleSelectors = [
+  "0xa9059cbb",
+  "transfer*",
+  "*Supply*",
+  "transferFrom(address,address,uint256)",
+  "0xbb757047c2b5f3974fe26b7c10f732e7bce710b0952a71082702781e62ae0595",
+];
+
 export default function Home() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [searchType, setSearchType] = useState<"search" | "lookup">("search");
+  const [error, setError] = useState<string | null>(null);
+
+  const performSearch = async (searchQuery: string) => {
+    if (!searchQuery.trim()) return;
+
+    setLoading(true);
+    setError(null);
+    setResults([]);
+
+    const trimmedQuery = searchQuery.trim();
+
+    // Check if it's a hex query (starts with 0x or is 8 hex chars)
+    const isHexQuery =
+      trimmedQuery.toLowerCase().startsWith("0x") || (trimmedQuery.length === 8 && /^[a-fA-F0-9]+$/.test(trimmedQuery));
+
+    if (isHexQuery) {
+      // Validate hex hash format and determine type
+      const hexQuery = trimmedQuery.toLowerCase().startsWith("0x")
+        ? trimmedQuery.toLowerCase()
+        : "0x" + trimmedQuery.toLowerCase();
+
+      const hexWithoutPrefix = hexQuery.slice(2);
+
+      // Validate hex characters
+      if (!/^[a-fA-F0-9]+$/.test(hexWithoutPrefix)) {
+        setError("Invalid hex format. Use only 0-9 and a-f characters.");
+        setLoading(false);
+        return;
+      }
+
+      let endpoint: string;
+      let param: string;
+
+      if (hexWithoutPrefix.length === 8) {
+        // 4-byte function selector
+        endpoint = "/api/lookup";
+        param = "function";
+        setSearchType("lookup");
+      } else if (hexWithoutPrefix.length === 64) {
+        // 32-byte event hash - search in events
+        endpoint = "/api/lookup";
+        param = "event";
+        setSearchType("lookup");
+      } else {
+        setError(
+          `Invalid hash length. Expected 4 bytes (8 hex chars) for functions or 32 bytes (64 hex chars) for events. Got ${hexWithoutPrefix.length} hex characters.`
+        );
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${endpoint}?${param}=${encodeURIComponent(hexQuery)}`);
+        const data: ApiResponse = await response.json();
+
+        const newResults: SearchResult[] = [];
+        if (data.result.function) {
+          Object.entries(data.result.function).forEach(([hex, sigs]) => {
+            sigs.forEach((sig) =>
+              newResults.push({
+                name: sig.name,
+                filtered: sig.filtered,
+                hex_signature: hex,
+              })
+            );
+          });
+        }
+        if (data.result.event) {
+          Object.entries(data.result.event).forEach(([hex, sigs]) => {
+            sigs.forEach((sig) =>
+              newResults.push({
+                name: sig.name,
+                filtered: sig.filtered,
+                hex_signature: hex,
+              })
+            );
+          });
+        }
+
+        setResults(newResults);
+      } catch (error) {
+        console.error("Search error:", error);
+        setError("Failed to fetch results. Please try again.");
+      }
+    } else {
+      // Text search
+      setSearchType("search");
+
+      try {
+        const response = await fetch(`/api/search?query=${encodeURIComponent(trimmedQuery)}`);
+        const data: ApiResponse = await response.json();
+
+        const newResults: SearchResult[] = [];
+        if (data.result.function) {
+          Object.entries(data.result.function).forEach(([hex, sigs]) => {
+            sigs.forEach((sig) =>
+              newResults.push({
+                name: sig.name,
+                filtered: sig.filtered,
+                hex_signature: hex,
+              })
+            );
+          });
+        }
+        if (data.result.event) {
+          Object.entries(data.result.event).forEach(([hex, sigs]) => {
+            sigs.forEach((sig) =>
+              newResults.push({
+                name: sig.name,
+                filtered: sig.filtered,
+                hex_signature: hex,
+              })
+            );
+          });
+        }
+
+        setResults(newResults);
+      } catch (error) {
+        console.error("Search error:", error);
+        setError("Failed to fetch results. Please try again.");
+      }
+    }
+
+    setLoading(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
-
-    setLoading(true);
-
-    // Auto-detect if query starts with 0x for lookup, otherwise search
-    const isHexQuery =
-      query.trim().toLowerCase().startsWith("0x") || (query.trim().length === 8 && /^[a-fA-F0-9]+$/.test(query.trim()));
-
-    setSearchType(isHexQuery ? "lookup" : "search");
-
-    try {
-      const endpoint = isHexQuery ? "/api/lookup" : "/api/search";
-      const param = isHexQuery ? "selector" : "query";
-      const response = await fetch(`${endpoint}?${param}=${encodeURIComponent(query.trim())}`);
-      const data: ApiResponse = await response.json();
-
-      const newResults: SearchResult[] = [];
-      if (data.result.function) {
-        Object.entries(data.result.function).forEach(([hex, sigs]) => {
-          sigs.forEach((sig) =>
-            newResults.push({
-              name: sig.name,
-              filtered: sig.filtered,
-              hex_signature: hex,
-            })
-          );
-        });
-      }
-      if (data.result.event) {
-        Object.entries(data.result.event).forEach(([hex, sigs]) => {
-          sigs.forEach((sig) =>
-            newResults.push({
-              name: sig.name,
-              filtered: sig.filtered,
-              hex_signature: hex,
-            })
-          );
-        });
-      }
-
-      setResults(newResults);
-    } catch (error) {
-      console.error("Search error:", error);
-    }
-    setLoading(false);
+    await performSearch(query);
   };
 
   const fetchStats = async () => {
@@ -108,15 +185,20 @@ export default function Home() {
     }
   };
 
+  const handleExampleClick = async (example: string) => {
+    setQuery(example);
+    await performSearch(example);
+  };
+
   useEffect(() => {
     fetchStats();
   }, []);
 
   return (
     <div className="min-h-screen p-4">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <header className="text-center py-4">
-          <div className="flex flex-col items-center justify-center mb-4">
+          <div className="flex flex-col justify-center mb-4">
             <h1 className="text-6xl font-bold font-vt323 text-gray-800">4byte.sourcify.dev</h1>
           </div>
           <p className="text-2xl text-gray-800 mx-auto">
@@ -135,7 +217,7 @@ export default function Home() {
             API.
           </p>
           {stats && (
-            <div className="mt-4 flex justify-center gap-6 text-sm text-cerulean-blue-600">
+            <div className="my-4 text-xl flex justify-center gap-6 text-cerulean-blue-600">
               <span>{stats.function.toLocaleString()} functions</span>
               <span>{stats.event.toLocaleString()} events</span>
             </div>
@@ -150,84 +232,83 @@ export default function Home() {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search by name (e.g. transfer) or by selector (e.g. 0xa9059cbb)"
+                  placeholder="e.g. 'balanceOf(address)' or '0xa9059cbb'"
                   className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:border-cerulean-blue-500 focus:ring-2 focus:ring-cerulean-blue-200 transition-all"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-cerulean-blue-600 hover:bg-cerulean-blue-700 disabled:bg-cerulean-blue-400 text-white py-3 px-4 rounded-md transition-colors"
+                className="bg-cerulean-blue-600 hover:bg-cerulean-blue-700 disabled:bg-cerulean-blue-400 text-white py-3 px-4 rounded-md transition-colors cursor-pointer"
               >
                 {loading ? "Searching..." : "Search"}
               </button>
             </form>
+
+            <div className="mt-6 text-sm text-gray-600">
+              <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards
+            </div>
+            <div className="text-sm text-gray-600">
+              <b>0x hash search:</b> Start with &apos;0x&apos;. Search 4byte or full 32 byte hash.
+            </div>
+
+            {/* Example Selectors */}
+            <div className="mt-6">
+              <div className="text-lg font-medium text-gray-800 mb-1">Examples</div>
+              <div className="flex flex-wrap gap-2">
+                {exampleSelectors.map((example, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleExampleClick(example)}
+                    className="text-sm bg-gray-100 px-4 py-1 hover:bg-gray-200 text-gray-800 transition-colors font-mono cursor-pointer rounded-md"
+                  >
+                    <span className="font-mono ">{example}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {results.length > 0 && (
+        {loading && (
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 mb-6">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cerulean-blue-600"></div>
+              <span className="ml-3 text-gray-600">Searching...</span>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="text-red-800 font-medium">Error</div>
+            <div className="text-red-700 text-sm mt-1">{error}</div>
+          </div>
+        )}
+
+        {!loading && results.length > 0 && (
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-green-100">
+                <thead className="bg-cerulean-blue-500 text-white">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Hash
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Name
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Hash</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {results.slice(0, 50).map((result, index) => (
                     <tr key={`${result.hex_signature}-${index}`} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-sm text-gray-900 break-all">{result.hex_signature}</span>
-                          <button
-                            onClick={() => copyToClipboard(result.hex_signature)}
-                            className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            title="Copy hash"
-                          >
-                            <svg
-                              className="w-4 h-4 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </button>
+                          <CopyButton text={result.hex_signature} title="Copy hash" />
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-sm text-gray-900">{result.name}</span>
-                          <button
-                            onClick={() => copyToClipboard(result.name)}
-                            className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            title="Copy name"
-                          >
-                            <svg
-                              className="w-4 h-4 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </button>
+                          <CopyButton text={result.name} title="Copy name" />
                         </div>
                       </td>
                     </tr>

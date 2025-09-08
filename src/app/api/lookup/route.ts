@@ -4,14 +4,28 @@ const API_BASE_URL = process.env.OPENCHAIN_API_URL || 'https://api.openchain.xyz
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const selector = searchParams.get('selector');
+  const functionHash = searchParams.get('function');
+  const event = searchParams.get('event');
 
-  if (!selector) {
-    return NextResponse.json({ error: 'Selector parameter is required' }, { status: 400 });
+  // Check that we have either function or event parameter
+  if (!functionHash && !event) {
+    return NextResponse.json({ error: 'Either function or event parameter is required' }, { status: 400 });
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/signature-database/v1/lookup?function=${encodeURIComponent(selector)}`);
+    let apiUrl: string;
+    
+    if (functionHash) {
+      // Function lookup
+      apiUrl = `${API_BASE_URL}/signature-database/v1/lookup?function=${encodeURIComponent(functionHash)}`;
+    } else if (event) {
+      // Event lookup
+      apiUrl = `${API_BASE_URL}/signature-database/v1/lookup?event=${encodeURIComponent(event)}`;
+    } else {
+      return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
+    }
+
+    const response = await fetch(apiUrl);
     
     if (!response.ok) {
       return NextResponse.json({ error: 'Failed to fetch from upstream API' }, { status: response.status });
