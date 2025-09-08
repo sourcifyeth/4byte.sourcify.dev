@@ -287,36 +287,44 @@ export default function Home() {
         )}
 
         {!loading && results.length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-cerulean-blue-500 text-white">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Hash</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {results.map((result, index) => (
-                    <tr key={`${result.hex_signature}-${index}`} className="hover:bg-gray-50">
-                      <td className="px-6 py-2 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-sm text-gray-900 break-all">{result.hex_signature}</span>
-                          <CopyButton text={result.hex_signature} title="Copy hash" />
-                        </div>
-                      </td>
-                      <td className="px-6 py-2 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-sm text-gray-900">{result.name}</span>
-                          <CopyButton text={result.name} title="Copy name" />
-                        </div>
-                      </td>
+          <>
+            <div className="text-sm text-gray-600">Showing {results.length} results</div>
+            {results.length % 1 === 0 && (
+              <div className="text-sm text-gray-600">
+                Results are limited to 100 for each type. Try to be more specific with the query.
+              </div>
+            )}
+            <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-cerulean-blue-500 text-white">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Hash</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {results.map((result, index) => (
+                      <tr key={`${result.hex_signature}-${index}`} className="hover:bg-gray-50">
+                        <td className="px-6 py-2 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm text-gray-900 break-all">{result.hex_signature}</span>
+                            <CopyButton text={result.hex_signature} title="Copy hash" />
+                          </div>
+                        </td>
+                        <td className="px-6 py-2 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm text-gray-900">{result.name}</span>
+                            <CopyButton text={result.name} title="Copy name" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
