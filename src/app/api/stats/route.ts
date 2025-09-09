@@ -1,19 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.OPENCHAIN_API_URL || 'https://api.openchain.xyz';
+const API_BASE_URL = process.env.SOURCIFY_SERVER_URL || "https://sourcify.dev/server";
 
 export async function GET() {
   try {
     const response = await fetch(`${API_BASE_URL}/signature-database/v1/stats`);
-    
+
     if (!response.ok) {
-      return NextResponse.json({ error: 'Failed to fetch from upstream API' }, { status: response.status });
+      return NextResponse.json({ error: "Failed to fetch from upstream API" }, { status: response.status });
     }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Stats API error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Stats API error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
