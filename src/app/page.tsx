@@ -27,6 +27,7 @@ interface ApiResponse {
 interface Stats {
   function: number;
   event: number;
+  error: number;
 }
 
 // API base URL
@@ -48,6 +49,7 @@ export default function Home() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [searchType, setSearchType] = useState<"search" | "lookup">("search");
   const [error, setError] = useState<string | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -230,12 +232,20 @@ export default function Home() {
             </Link>
             .
           </p>
-          {stats && (
-            <div className="my-4 text-xl flex justify-center gap-6 text-cerulean-blue-600">
-              <span>{stats.function.toLocaleString()} functions</span>
-              <span>{stats.event.toLocaleString()} events</span>
-            </div>
-          )}
+          <div className="my-4 text-xl flex justify-center gap-6 text-cerulean-blue-600">
+            {stats ? (
+              <>
+                <span>{stats.function.toLocaleString()} functions</span>
+                <span>{stats.event.toLocaleString()} events</span>
+                <span>{stats.error.toLocaleString()} errors</span>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-cerulean-blue-600 border-t-transparent"></div>
+                <span>Loading stats...</span>
+              </div>
+            )}
+          </div>
         </header>
 
         <div className="mx-auto mb-8">
