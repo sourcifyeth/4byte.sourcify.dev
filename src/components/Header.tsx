@@ -22,13 +22,13 @@ function MobileMenu() {
         <div className="absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 md:hidden z-50">
           <div className="flex flex-col p-4 gap-4">
             <Link
-              href="https://sourcify.dev"
+              href="https://api.openchain.xyz"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-cerulean-blue-400 transition-colors font-medium flex items-center gap-2"
               onClick={() => setIsOpen(false)}
             >
-              sourcify.dev
+              API
               <FiExternalLink className="w-3 h-3" />
             </Link>
             <Link
@@ -38,7 +38,7 @@ function MobileMenu() {
               className="text-gray-600 hover:text-cerulean-blue-400 transition-colors font-medium flex items-center gap-2"
               onClick={() => setIsOpen(false)}
             >
-              API Docs
+              Docs
               <FiExternalLink className="w-3 h-3" />
             </Link>
             <Link
@@ -84,7 +84,16 @@ export default function Header() {
             rel="noopener noreferrer"
             className="text-gray-600 hover:text-cerulean-blue-400 transition-colors font-medium flex items-center gap-1"
           >
-            API Docs
+            API
+            <FiExternalLink className="w-3 h-3" />
+          </Link>
+          <Link
+            href="https://docs.sourcify.dev/docs/repository/signature-database"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-600 hover:text-cerulean-blue-400 transition-colors font-medium flex items-center gap-1"
+          >
+            Docs
             <FiExternalLink className="w-3 h-3" />
           </Link>
           <Link
