@@ -77,7 +77,7 @@ export default function RootLayout({
           />
         )}
         <Header />
-        <main className="w-full max-w-[100rem] mx-auto px-6 md:px-12 lg:px-12 xl:px-24 py-6 flex-grow">{children}</main>
+        <main className="w-full max-w-[100rem] mx-auto px-4 md:px-12 lg:px-12 xl:px-24 py-6 flex-grow">{children}</main>
         <Footer />
         <AppTooltip />
       </body>

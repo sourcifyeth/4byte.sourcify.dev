@@ -202,16 +202,16 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen py-4">
       <div className="max-w-6xl mx-auto">
         <header className="text-center py-4">
           <div className="flex flex-col justify-center mb-4">
-            <h1 className="text-6xl font-bold font-vt323 text-gray-800">4byte.sourcify.dev</h1>
+            <h1 className="text-4xl md:text-6xl font-bold font-vt323 text-gray-800">4byte.sourcify.dev</h1>
           </div>
-          <p className="text-2xl text-gray-800 mx-auto">
+          <p className="text-lg md:text-2xl text-gray-800 mx-auto px-4">
             Ethereum function selector database created from Sourcify verified contracts.
           </p>
-          <p className="text-gray-600 mx-auto mt-4">
+          <p className="text-sm md:text-base text-gray-600 mx-auto mt-4 px-4">
             4byte.sourcify.dev is created from Sourcify verified contracts and follows the{" "}
             <a
               href="https://openchain.xyz"
@@ -232,7 +232,7 @@ export default function Home() {
             </Link>
             .
           </p>
-          <div className="my-4 text-xl flex justify-center gap-6 text-cerulean-blue-600">
+          <div className="my-4 text-base md:text-xl flex flex-wrap justify-center gap-4 md:gap-6 text-cerulean-blue-600">
             {stats ? (
               <>
                 {stats.function !== undefined && <span>{stats.function.toLocaleString()} functions</span>}
@@ -249,44 +249,46 @@ export default function Home() {
         </header>
 
         <div className="mx-auto mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-            <form onSubmit={handleSubmit} className="flex gap-4 items-center">
+          <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
               <div className="flex-1">
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="e.g. 'balanceOf(address)' or '0xa9059cbb'"
-                  className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:border-cerulean-blue-500 focus:ring-2 focus:ring-cerulean-blue-200 transition-all"
+                  className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:border-cerulean-blue-500 focus:ring-2 focus:ring-cerulean-blue-200 transition-all text-sm md:text-base"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-cerulean-blue-600 hover:bg-cerulean-blue-700 disabled:bg-cerulean-blue-400 text-white py-3 px-4 rounded-md transition-colors cursor-pointer"
+                className="bg-cerulean-blue-600 hover:bg-cerulean-blue-700 disabled:bg-cerulean-blue-400 text-white py-3 px-4 rounded-md transition-colors cursor-pointer whitespace-nowrap text-sm md:text-base"
               >
                 {loading ? "Searching..." : "Search"}
               </button>
             </form>
 
-            <div className="mt-6 text-sm text-gray-600">
-              <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards
-            </div>
-            <div className="text-sm text-gray-600">
-              <b>0x hash search:</b> Start with &apos;0x&apos;. Search 4byte or full 32 byte hash.
+            <div className="mt-6 text-xs md:text-sm text-gray-600 space-y-1">
+              <div>
+                <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards
+              </div>
+              <div>
+                <b>0x hash search:</b> Start with &apos;0x&apos;. Search 4byte or full 32 byte hash.
+              </div>
             </div>
 
             {/* Example Selectors */}
             <div className="mt-6">
-              <div className="text-lg font-medium text-gray-800 mb-1">Examples</div>
+              <div className="text-sm md:text-base font-medium text-gray-800 mb-2">Examples</div>
               <div className="flex flex-wrap gap-2">
                 {exampleSelectors.map((example, i) => (
                   <button
                     key={i}
                     onClick={() => handleExampleClick(example)}
-                    className="text-sm bg-gray-100 px-4 py-1 hover:bg-gray-200 text-gray-800 transition-colors font-mono cursor-pointer rounded-md"
+                    className="text-xs md:text-sm bg-gray-100 px-2 md:px-4 py-1 md:py-2 hover:bg-gray-200 text-gray-800 transition-colors font-mono cursor-pointer rounded-md break-all"
                   >
-                    <span className="font-mono ">{example}</span>
+                    <span className="font-mono">{example}</span>
                   </button>
                 ))}
               </div>
@@ -295,52 +297,58 @@ export default function Home() {
         </div>
 
         {loading && (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 mb-6">
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 md:p-8 mb-6 mx-2">
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cerulean-blue-600"></div>
-              <span className="ml-3 text-gray-600">Searching...</span>
+              <div className="animate-spin rounded-full h-6 md:h-8 w-6 md:w-8 border-b-2 border-cerulean-blue-600"></div>
+              <span className="ml-3 text-sm md:text-base text-gray-600">Searching...</span>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="text-red-800 font-medium">Error</div>
-            <div className="text-red-700 text-sm mt-1">{error}</div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 mx-2">
+            <div className="text-red-800 font-medium text-sm md:text-base">Error</div>
+            <div className="text-red-700 text-xs md:text-sm mt-1">{error}</div>
           </div>
         )}
 
         {!loading && results.length > 0 && (
           <>
-            <div className="text-sm text-gray-600">
+            <div className="text-xs md:text-sm text-gray-600 px-2 mb-2">
               Showing {results.length} result{results.length > 1 ? "s" : ""}
             </div>
             {results.length % 100 === 0 && (
-              <div className="text-sm text-gray-600">
+              <div className="text-xs md:text-sm text-gray-600 px-2 mb-4">
                 Results are limited to 100 for each type. Try to be more specific with the query.
               </div>
             )}
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mx-2">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-cerulean-blue-500 text-white">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Hash</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
+                      <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        Hash
+                      </th>
+                      <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">
+                        Name
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {results.map((result, index) => (
                       <tr key={`${result.hex_signature}-${index}`} className="hover:bg-gray-50">
-                        <td className="px-6 py-2 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-sm text-gray-900 break-all">{result.hex_signature}</span>
+                        <td className="px-3 md:px-6 py-2 ">
+                          <div className="flex items-center gap-1 md:gap-2">
+                            <span className="font-mono text-xs md:text-sm text-gray-900 break-all xl:break-normal w-[150px] md:w-[400px] xl:w-auto xl:max-w-none">
+                              {result.hex_signature}
+                            </span>
                             <CopyButton text={result.hex_signature} title="Copy hash" />
                           </div>
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-sm text-gray-900">{result.name}</span>
+                        <td className="px-3 md:px-6 py-2">
+                          <div className="flex items-center gap-1 md:gap-2">
+                            <span className="font-mono text-xs md:text-sm text-gray-900">{result.name}</span>
                             <CopyButton text={result.name} title="Copy name" />
                           </div>
                         </td>
