@@ -25,9 +25,9 @@ interface ApiResponse {
 }
 
 interface Stats {
-  function: number;
-  event: number;
-  error: number;
+  function?: number;
+  event?: number;
+  error?: number;
 }
 
 // API base URL
@@ -235,9 +235,9 @@ export default function Home() {
           <div className="my-4 text-xl flex justify-center gap-6 text-cerulean-blue-600">
             {stats ? (
               <>
-                <span>{stats.function.toLocaleString()} functions</span>
-                <span>{stats.event.toLocaleString()} events</span>
-                <span>{stats.error.toLocaleString()} errors</span>
+                {stats.function !== undefined && <span>{stats.function.toLocaleString()} functions</span>}
+                {stats.event !== undefined && <span>{stats.event.toLocaleString()} events</span>}
+                {stats.error !== undefined && <span>{stats.error.toLocaleString()} errors</span>}
               </>
             ) : (
               <div className="flex items-center gap-2">
