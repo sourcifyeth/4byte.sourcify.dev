@@ -28,6 +28,9 @@ interface Stats {
   event: number;
 }
 
+// API base URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_OPENCHAIN_API_URL || 'https://api.openchain.xyz';
+
 // Example selectors for users to try
 const exampleSelectors = [
   "0xa9059cbb",
@@ -73,17 +76,14 @@ export default function Home() {
         return;
       }
 
-      let endpoint: string;
       let param: string;
 
       if (hexWithoutPrefix.length === 8) {
         // 4-byte function selector
-        endpoint = "/api/lookup";
         param = "function";
         setSearchType("lookup");
       } else if (hexWithoutPrefix.length === 64) {
         // 32-byte event hash - search in events
-        endpoint = "/api/lookup";
         param = "event";
         setSearchType("lookup");
       } else {
@@ -95,7 +95,7 @@ export default function Home() {
       }
 
       try {
-        const response = await fetch(`${endpoint}?${param}=${encodeURIComponent(hexQuery)}`);
+        const response = await fetch(`${API_BASE_URL}/signature-database/v1/lookup?${param}=${encodeURIComponent(hexQuery)}`);
         const data: ApiResponse = await response.json();
 
         const newResults: SearchResult[] = [];
@@ -132,7 +132,7 @@ export default function Home() {
       setSearchType("search");
 
       try {
-        const response = await fetch(`/api/search?query=${encodeURIComponent(trimmedQuery)}`);
+        const response = await fetch(`${API_BASE_URL}/signature-database/v1/search?query=${encodeURIComponent(trimmedQuery)}`);
         const data: ApiResponse = await response.json();
 
         const newResults: SearchResult[] = [];
@@ -176,7 +176,7 @@ export default function Home() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch("/api/stats");
+      const response = await fetch(`${API_BASE_URL}/signature-database/v1/stats`);
       const data = await response.json();
       console.log("Stats data:", data);
       setStats(data.result.count);
