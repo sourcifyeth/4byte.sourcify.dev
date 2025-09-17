@@ -27,6 +27,9 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_OPENCHAIN_API_URL: ${{ vars.NEXT_PUBLIC_OPENCHAIN_API_URL }}
+          NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
       - name: "setup-gcloud"
         uses: "google-github-actions/setup-gcloud@v2"
 
