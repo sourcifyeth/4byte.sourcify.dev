@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
+import Link from "next/link";
 
 interface SearchResult {
   name: string;
@@ -29,7 +30,7 @@ interface Stats {
 }
 
 // API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_OPENCHAIN_API_URL || 'https://api.openchain.xyz';
+const API_BASE_URL = process.env.NEXT_PUBLIC_OPENCHAIN_API_URL || "https://api.openchain.xyz";
 
 // Example selectors for users to try
 const exampleSelectors = [
@@ -95,7 +96,9 @@ export default function Home() {
       }
 
       try {
-        const response = await fetch(`${API_BASE_URL}/signature-database/v1/lookup?${param}=${encodeURIComponent(hexQuery)}`);
+        const response = await fetch(
+          `${API_BASE_URL}/signature-database/v1/lookup?${param}=${encodeURIComponent(hexQuery)}`
+        );
         const data: ApiResponse = await response.json();
 
         const newResults: SearchResult[] = [];
@@ -132,7 +135,9 @@ export default function Home() {
       setSearchType("search");
 
       try {
-        const response = await fetch(`${API_BASE_URL}/signature-database/v1/search?query=${encodeURIComponent(trimmedQuery)}`);
+        const response = await fetch(
+          `${API_BASE_URL}/signature-database/v1/search?query=${encodeURIComponent(trimmedQuery)}`
+        );
         const data: ApiResponse = await response.json();
 
         const newResults: SearchResult[] = [];
@@ -214,7 +219,16 @@ export default function Home() {
             >
               openchain.xyz
             </a>{" "}
-            API.
+            &apos;s API. See{" "}
+            <Link
+              href="https://docs.sourcify.dev/docs/api/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cerulean-blue-600"
+            >
+              Sourcify API docs
+            </Link>
+            .
           </p>
           {stats && (
             <div className="my-4 text-xl flex justify-center gap-6 text-cerulean-blue-600">
