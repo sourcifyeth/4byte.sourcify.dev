@@ -1,0 +1,43 @@
+name: Release on Google Bucket
+on:
+  push:
+    branches:
+      - main
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: "projects/1019539084286/locations/global/workloadIdentityPools/github/providers/sourcify"
+          service_account: "sourcify-4bytes-cd@sourcify-project.iam.gserviceaccount.com"
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22.4.0"
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: "setup-gcloud"
+        uses: "google-github-actions/setup-gcloud@v2"
+
+      - name: Clear bucket
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          # Clear the bucket
+          gsutil -m rm gs://4bytes-sourcify/** || true
+      - name: "upload-files"
+        uses: "google-github-actions/upload-cloud-storage@v2"
+        with:
+          path: "out"
+          destination: "4bytes-sourcify"
+          parent: false
+          glob: "**/*"
