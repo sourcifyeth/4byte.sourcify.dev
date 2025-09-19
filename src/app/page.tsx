@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchResult {
   name: string;
@@ -45,13 +46,24 @@ const exampleSelectors = [
 ];
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [searchType, setSearchType] = useState<"search" | "lookup">("search");
   const [error, setError] = useState<string | null>(null);
-  const [statsError, setStatsError] = useState<string | null>(null);
+
+  // Update URL with search query
+  const updateURL = (searchQuery: string) => {
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) {
+      params.set("q", searchQuery.trim());
+    }
+    const newURL = params.toString() ? `/?${params.toString()}` : "/";
+    router.replace(newURL);
+  };
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -61,6 +73,9 @@ export default function Home() {
     setResults([]);
 
     const trimmedQuery = searchQuery.trim();
+
+    // Update URL with search query
+    updateURL(trimmedQuery);
 
     // Check if it's a hex query (starts with 0x or is 8 hex chars)
     const isHexQuery =
@@ -88,8 +103,6 @@ export default function Home() {
         setLoading(false);
         return;
       }
-
-      setSearchType("lookup");
 
       try {
         // Search for all types: function, event, and error
@@ -152,7 +165,6 @@ export default function Home() {
       }
     } else {
       // Text search
-      setSearchType("search");
 
       try {
         const response = await fetch(
@@ -235,9 +247,23 @@ export default function Home() {
     await performSearch(example);
   };
 
+  // Load query from URL parameters on mount
   useEffect(() => {
+    const urlQuery = searchParams.get("q");
+    if (urlQuery) {
+      setQuery(urlQuery);
+      performSearch(urlQuery);
+    }
     fetchStats();
-  }, []);
+  }, [searchParams]);
+
+  // Update query state when URL changes
+  useEffect(() => {
+    const urlQuery = searchParams.get("q") || "";
+    if (urlQuery !== query) {
+      setQuery(urlQuery);
+    }
+  }, [searchParams, query]);
 
   return (
     <div className="min-h-screen py-4">
@@ -309,10 +335,13 @@ export default function Home() {
 
             <div className="mt-6 text-xs md:text-sm text-gray-600 space-y-1">
               <div>
-                <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards
+                <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards, case insensitive.
               </div>
               <div>
                 <b>0x hash search:</b> Start with &apos;0x&apos;. Search 4byte or full 32 byte hash.
+              </div>
+              <div>
+                <b>?q=0x12345678 in URL:</b> Use the ?q=0x12345678 query parameter for a sharable link.
               </div>
             </div>
 
