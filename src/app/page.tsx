@@ -9,6 +9,7 @@ interface SearchResult {
   name: string;
   filtered: boolean;
   hex_signature: string;
+  type: "function" | "event" | "error";
 }
 
 interface ApiResult {
@@ -21,6 +22,7 @@ interface ApiResponse {
   result: {
     function?: Record<string, ApiResult[]>;
     event?: Record<string, ApiResult[]>;
+    error?: Record<string, ApiResult[]>;
   };
 }
 
@@ -79,17 +81,7 @@ export default function Home() {
         return;
       }
 
-      let param: string;
-
-      if (hexWithoutPrefix.length === 8) {
-        // 4-byte function selector
-        param = "function";
-        setSearchType("lookup");
-      } else if (hexWithoutPrefix.length === 64) {
-        // 32-byte event hash - search in events
-        param = "event";
-        setSearchType("lookup");
-      } else {
+      if (hexWithoutPrefix.length !== 8 && hexWithoutPrefix.length !== 64) {
         setError(
           `Invalid hash length. Expected 4 bytes (8 hex chars) for functions or 32 bytes (64 hex chars) for events. Got ${hexWithoutPrefix.length} hex characters.`
         );
@@ -97,13 +89,21 @@ export default function Home() {
         return;
       }
 
+      setSearchType("lookup");
+
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/signature-database/v1/lookup?${param}=${encodeURIComponent(hexQuery)}`
-        );
+        // Search for all types: function, event, and error
+        const params = new URLSearchParams();
+        params.append("function", hexQuery);
+        params.append("event", hexQuery);
+        params.append("error", hexQuery);
+
+        const response = await fetch(`${API_BASE_URL}/signature-database/v1/lookup?${params.toString()}`);
         const data: ApiResponse = await response.json();
 
         const newResults: SearchResult[] = [];
+
+        // Add function results
         if (data.result.function) {
           Object.entries(data.result.function).forEach(([hex, sigs]) => {
             sigs.forEach((sig) =>
@@ -111,10 +111,13 @@ export default function Home() {
                 name: sig.name,
                 filtered: sig.filtered,
                 hex_signature: hex,
+                type: "function",
               })
             );
           });
         }
+
+        // Add event results
         if (data.result.event) {
           Object.entries(data.result.event).forEach(([hex, sigs]) => {
             sigs.forEach((sig) =>
@@ -122,6 +125,21 @@ export default function Home() {
                 name: sig.name,
                 filtered: sig.filtered,
                 hex_signature: hex,
+                type: "event",
+              })
+            );
+          });
+        }
+
+        // Add error results
+        if (data.result.error) {
+          Object.entries(data.result.error).forEach(([hex, sigs]) => {
+            sigs.forEach((sig) =>
+              newResults.push({
+                name: sig.name,
+                filtered: sig.filtered,
+                hex_signature: hex,
+                type: "error",
               })
             );
           });
@@ -143,6 +161,8 @@ export default function Home() {
         const data: ApiResponse = await response.json();
 
         const newResults: SearchResult[] = [];
+
+        // Add function results
         if (data.result.function) {
           Object.entries(data.result.function).forEach(([hex, sigs]) => {
             sigs.forEach((sig) =>
@@ -150,10 +170,13 @@ export default function Home() {
                 name: sig.name,
                 filtered: sig.filtered,
                 hex_signature: hex,
+                type: "function",
               })
             );
           });
         }
+
+        // Add event results
         if (data.result.event) {
           Object.entries(data.result.event).forEach(([hex, sigs]) => {
             sigs.forEach((sig) =>
@@ -161,6 +184,21 @@ export default function Home() {
                 name: sig.name,
                 filtered: sig.filtered,
                 hex_signature: hex,
+                type: "event",
+              })
+            );
+          });
+        }
+
+        // Add error results
+        if (data.result.error) {
+          Object.entries(data.result.error).forEach(([hex, sigs]) => {
+            sigs.forEach((sig) =>
+              newResults.push({
+                name: sig.name,
+                filtered: sig.filtered,
+                hex_signature: hex,
+                type: "error",
               })
             );
           });
@@ -327,6 +365,7 @@ export default function Home() {
                 <table className="w-full">
                   <thead className="bg-cerulean-blue-500 text-white">
                     <tr>
+                      <th className="px-3 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">Type</th>
                       <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">
                         Hash
                       </th>
@@ -338,6 +377,19 @@ export default function Home() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {results.map((result, index) => (
                       <tr key={`${result.hex_signature}-${index}`} className="hover:bg-gray-50">
+                        <td className="px-3 py-2">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              result.type === "function"
+                                ? "bg-blue-100 text-blue-800"
+                                : result.type === "event"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {result.type}
+                          </span>
+                        </td>
                         <td className="px-3 md:px-6 py-2 ">
                           <div className="flex items-center gap-1 md:gap-2">
                             <span className="font-mono text-xs md:text-sm text-gray-900 break-all xl:break-normal w-[150px] md:w-[400px] xl:w-auto xl:max-w-none">
