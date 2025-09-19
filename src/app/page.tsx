@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import Link from "next/link";
@@ -45,7 +45,7 @@ const exampleSelectors = [
   "0xbb757047c2b5f3974fe26b7c10f732e7bce710b0952a71082702781e62ae0595",
 ];
 
-export default function Home() {
+function SearchInterface() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -443,5 +443,13 @@ export default function Home() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SearchInterface />
+    </Suspense>
   );
 }
