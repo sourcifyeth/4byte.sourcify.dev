@@ -247,7 +247,7 @@ function SearchInterface() {
     await performSearch(example);
   };
 
-  // Load query from URL parameters on mount
+  // Load query from URL parameters on mount only
   useEffect(() => {
     const urlQuery = searchParams.get("q");
     if (urlQuery) {
@@ -255,15 +255,7 @@ function SearchInterface() {
       performSearch(urlQuery);
     }
     fetchStats();
-  }, [searchParams]);
-
-  // Update query state when URL changes
-  useEffect(() => {
-    const urlQuery = searchParams.get("q") || "";
-    if (urlQuery !== query) {
-      setQuery(urlQuery);
-    }
-  }, [searchParams, query]);
+  }, []); // Empty dependency array - only run on mount
 
   return (
     <div className="min-h-screen py-4">
