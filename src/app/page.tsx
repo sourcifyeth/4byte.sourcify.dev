@@ -54,6 +54,7 @@ function SearchInterface() {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [statsDate, setStatsDate] = useState<string | null>(null);
 
   // Update URL with search query
   const updateURL = (searchQuery: string) => {
@@ -237,6 +238,7 @@ function SearchInterface() {
       const data = await response.json();
       console.log("Stats data:", data);
       setStats(data.result.count);
+      setStatsDate(data.result.metadata.refreshed_at);
     } catch (error) {
       console.error("Stats error:", error);
     }
@@ -288,12 +290,31 @@ function SearchInterface() {
             </Link>
             .
           </p>
-          <div className="my-4 text-base md:text-xl flex flex-wrap justify-center gap-4 md:gap-6 text-cerulean-blue-600">
+          <div className="">
             {stats ? (
               <>
-                {stats.function !== undefined && <span>{stats.function.toLocaleString()} functions</span>}
-                {stats.event !== undefined && <span>{stats.event.toLocaleString()} events</span>}
-                {stats.error !== undefined && <span>{stats.error.toLocaleString()} errors</span>}
+                <div className="my-2 text-xl flex flex-col md:flex-row flex-wrap justify-center gap-x-4 md:gap-x-6 text-cerulean-blue-600">
+                  {stats.function !== undefined && <span>{stats.function.toLocaleString()} functions</span>}
+                  {stats.event !== undefined && <span>{stats.event.toLocaleString()} events</span>}
+                  {stats.error !== undefined && <span>{stats.error.toLocaleString()} errors</span>}
+                  {stats.function !== undefined && stats.event !== undefined && stats.error !== undefined && (
+                    <span className="font-semibold">
+                      {(stats.function + stats.event + stats.error).toLocaleString()} total
+                    </span>
+                  )}
+                </div>
+                {statsDate && (
+                  <div className="text-xs md:text-sm text-gray-500">
+                    Stats updated:{" "}
+                    {new Date(statsDate).toLocaleString(undefined, {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                )}
               </>
             ) : (
               <div className="flex items-center gap-2">
