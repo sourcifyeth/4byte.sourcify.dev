@@ -264,7 +264,9 @@ function SearchInterface() {
       <div className="max-w-6xl mx-auto">
         <header className="text-center py-4">
           <div className="flex flex-col justify-center mb-4">
-            <h1 className="text-4xl md:text-6xl font-bold font-vt323 text-gray-800">4byte.sourcify.dev</h1>
+            <h1 className="text-4xl md:text-6xl font-bold font-vt323 text-gray-800">
+              {process.env.NEXT_PUBLIC_ENVIRONMENT !== "production" ? "(staging) " : ""}4byte.sourcify.dev
+            </h1>
           </div>
           <p className="text-lg md:text-2xl text-gray-800 mx-auto px-4">
             Ethereum function selector database created from Sourcify verified contracts.
