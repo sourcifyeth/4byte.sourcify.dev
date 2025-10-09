@@ -1,6 +1,6 @@
 {
-  "name": "4bytes.sourcify.dev",
-  "version": "0.1.0",
+  "name": "4byte.sourcify.dev",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

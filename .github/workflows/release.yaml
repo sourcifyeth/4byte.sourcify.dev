@@ -24,14 +24,14 @@ jobs:
         uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: "projects/1019539084286/locations/global/workloadIdentityPools/github/providers/sourcify"
-          service_account: "sourcify-4bytes-staging-cd@sourcify-project.iam.gserviceaccount.com"
+          service_account: "sourcify-4byte-staging-cd@sourcify-project.iam.gserviceaccount.com"
 
       - name: "auth main"
         if: github.ref == 'refs/heads/main'
         uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: "projects/1019539084286/locations/global/workloadIdentityPools/github/providers/sourcify"
-          service_account: "sourcify-4bytes-cd@sourcify-project.iam.gserviceaccount.com"
+          service_account: "sourcify-4byte-cd@sourcify-project.iam.gserviceaccount.com"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
