@@ -5,6 +5,8 @@ import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FaQuestionCircle } from "react-icons/fa";
+import { Tooltip } from "react-tooltip";
 
 interface SearchResult {
   name: string;
@@ -31,6 +33,8 @@ interface Stats {
   function?: number;
   event?: number;
   error?: number;
+  unknown?: number;
+  total?: number;
 }
 
 // API base URL
@@ -292,21 +296,11 @@ function SearchInterface() {
             </Link>
             .
           </p>
-          <div className="">
+          <div className="my-4">
             {stats ? (
               <>
-                <div className="my-2 text-xl flex flex-col md:flex-row flex-wrap justify-center gap-x-4 md:gap-x-6 text-cerulean-blue-600">
-                  {stats.function !== undefined && <span>{stats.function.toLocaleString()} functions</span>}
-                  {stats.event !== undefined && <span>{stats.event.toLocaleString()} events</span>}
-                  {stats.error !== undefined && <span>{stats.error.toLocaleString()} errors</span>}
-                  {stats.function !== undefined && stats.event !== undefined && stats.error !== undefined && (
-                    <span className="font-semibold">
-                      {(stats.function + stats.event + stats.error).toLocaleString()} total
-                    </span>
-                  )}
-                </div>
                 {statsDate && (
-                  <div className="text-xs md:text-sm text-gray-500">
+                  <div className="text-xs md:text-sm text-gray-400">
                     Stats updated:{" "}
                     {new Date(statsDate).toLocaleString(undefined, {
                       year: "numeric",
@@ -317,6 +311,40 @@ function SearchInterface() {
                     })}
                   </div>
                 )}
+                <div className="mt-1 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto text-gray-700">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                    <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
+                      From Verified Contracts
+                      <FaQuestionCircle
+                        className="w-3 h-3 text-gray-400 cursor-help"
+                        data-tooltip-id="stats-tooltip"
+                        data-tooltip-content="The signatures found in at least one verified contract ABI on Sourcify"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      {stats.function !== undefined && <div>{stats.function.toLocaleString()} functions</div>}
+                      {stats.event !== undefined && <div>{stats.event.toLocaleString()} events</div>}
+                      {stats.error !== undefined && <div>{stats.error.toLocaleString()} errors</div>}
+                    </div>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                    <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
+                      No Associated Contract
+                      <FaQuestionCircle
+                        className="w-3 h-3 text-gray-400 cursor-help"
+                        data-tooltip-id="stats-tooltip"
+                        data-tooltip-content="Signatures without a verified contract on Sourcify. For signatures submitted via the /import endpoint or from other signature databases."
+                      />
+                    </div>
+                    <div>{stats.unknown !== undefined && <span>{stats.unknown.toLocaleString()}</span>}</div>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                    <div className="text-sm text-gray-400 mb-2">Total Signatures</div>
+                    <div className="font-semibold">
+                      {stats.total !== undefined && <span>{stats.total.toLocaleString()}</span>}
+                    </div>
+                  </div>
+                </div>
               </>
             ) : (
               <div className="flex items-center gap-2">
@@ -457,6 +485,7 @@ function SearchInterface() {
           </>
         )}
       </div>
+      <Tooltip id="stats-tooltip" place="top" className="max-w-sm" />
     </div>
   );
 }
