@@ -5,7 +5,7 @@ import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaQuestionCircle } from "react-icons/fa";
+import { FaQuestionCircle, FaCheckCircle } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 
 interface SearchResult {
@@ -13,11 +13,13 @@ interface SearchResult {
   filtered: boolean;
   hex_signature: string;
   type: "function" | "event" | "error";
+  hasVerifiedContract: boolean;
 }
 
 interface ApiResult {
   name: string;
   filtered: boolean;
+  hasVerifiedContract: boolean;
 }
 
 interface ApiResponse {
@@ -130,6 +132,7 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "function",
+                hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
           });
@@ -144,6 +147,7 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "event",
+                hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
           });
@@ -158,6 +162,7 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "error",
+                hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
           });
@@ -188,6 +193,7 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "function",
+                hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
           });
@@ -202,6 +208,7 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "event",
+                hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
           });
@@ -216,6 +223,7 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "error",
+                hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
           });
@@ -437,11 +445,9 @@ function SearchInterface() {
                 <table className="w-full">
                   <thead className="bg-cerulean-blue-500 text-white">
                     <tr>
-                      <th className="px-3 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">Type</th>
-                      <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">
-                        Hash
-                      </th>
-                      <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      <th className="py-2 md:py-3 text-center text-xs font-medium uppercase tracking-wider w-16"></th>
+                      <th className="py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">Hash</th>
+                      <th className="pl-2 md:pl-6 py-2 md:py-3 text-left text-xs font-medium uppercase tracking-wider">
                         Name
                       </th>
                     </tr>
@@ -449,31 +455,28 @@ function SearchInterface() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {results.map((result, index) => (
                       <tr key={`${result.hex_signature}-${index}`} className="hover:bg-gray-50">
-                        <td className="px-3 py-2">
-                          <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              result.type === "function"
-                                ? "bg-blue-100 text-blue-800"
-                                : result.type === "event"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {result.type}
-                          </span>
+                        <td className="px-2 py-2 text-center">
+                          {result.hasVerifiedContract && (
+                            <FaCheckCircle
+                              className="w-4 h-4 text-green-600 cursor-help mx-auto"
+                              data-tooltip-id="verified-badge-tooltip"
+                              data-tooltip-content="This signature is found in at least one verified contract on Sourcify"
+                            />
+                          )}
                         </td>
-                        <td className="px-3 md:px-6 py-2 ">
+                        <td className="py-2">
                           <div className="flex items-center gap-1 md:gap-2">
-                            <span className="font-mono text-xs md:text-sm text-gray-900 break-all xl:break-normal w-[150px] md:w-[400px] xl:w-auto xl:max-w-none">
+                            <span className="flex items-center gap-1 font-mono text-xs md:text-sm text-gray-900 break-all xl:break-normal w-[150px] md:w-[400px] xl:w-auto xl:max-w-none">
                               {result.hex_signature}
+                              <CopyButton text={result.hex_signature} title="Copy hash" />
                             </span>
-                            <CopyButton text={result.hex_signature} title="Copy hash" />
                           </div>
                         </td>
-                        <td className="px-3 md:px-6 py-2">
+                        <td className="pl-2 md:pl-6 py-2">
                           <div className="flex items-center gap-1 md:gap-2">
-                            <span className="font-mono text-xs md:text-sm text-gray-900">{result.name}</span>
-                            <CopyButton text={result.name} title="Copy name" />
+                            <span className="flex items-center gap-1 font-mono text-xs md:text-sm text-gray-900">
+                              {result.name} <CopyButton text={result.name} title="Copy name" />
+                            </span>
                           </div>
                         </td>
                       </tr>
@@ -486,6 +489,7 @@ function SearchInterface() {
         )}
       </div>
       <Tooltip id="stats-tooltip" place="top" className="max-w-sm" />
+      <Tooltip id="verified-badge-tooltip" place="top" />
     </div>
   );
 }
