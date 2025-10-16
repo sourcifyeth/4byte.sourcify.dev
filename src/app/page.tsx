@@ -68,7 +68,9 @@ function SearchInterface() {
       params.set("q", searchQuery.trim());
     }
     const newURL = params.toString() ? `/?${params.toString()}` : "/";
-    router.replace(newURL);
+
+    // Use history API to avoid scroll jumps
+    window.history.replaceState(null, "", newURL);
   };
 
   const performSearch = async (searchQuery: string) => {
