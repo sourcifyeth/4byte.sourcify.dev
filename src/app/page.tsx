@@ -332,10 +332,11 @@ function SearchInterface() {
 
         <div className="mx-auto mb-8">
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-stretch md:items-center" role="search">
               <div className="flex-1">
                 <input
-                  type="text"
+                  type="search"
+                  name="search"
                   value={query}
                   onChange={(e) => {
                     setQuery(e.target.value);
@@ -349,6 +350,8 @@ function SearchInterface() {
                   }}
                   placeholder="e.g. 'balanceOf(address)' or '0xa9059cbb'"
                   className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:border-cerulean-blue-500 focus:ring-2 focus:ring-cerulean-blue-200 transition-all text-sm md:text-base"
+                  autoComplete="off"
+                  data-1p-ignore
                 />
               </div>
               <button
