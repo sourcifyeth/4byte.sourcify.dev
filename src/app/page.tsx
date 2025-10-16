@@ -46,6 +46,7 @@ const exampleSelectors = [
   { query: "0xa9059cbb", description: "4-byte function selector" },
   { query: "transfer*", description: "Wildcard text search for signatures starting with 'transfer'" },
   { query: "*Supply*", description: "Signatures containing 'Supply'" },
+  { query: "?all()", description: "Single char wildcard - matches 'call()', 'wall()', etc." },
   { query: "transferFrom(address,address,uint256)", description: "Full function signature" },
   { query: "0xbb757047c2b5f3974fe26b7c10f732e7bce710b0952a71082702781e62ae0595", description: "32-byte event hash" },
 ];
@@ -242,11 +243,11 @@ function SearchInterface() {
   }, []); // Empty dependency array - only run on mount
 
   return (
-    <div className="min-h-screen py-4">
+    <div className="min-h-screen py-2">
       <div className="max-w-6xl mx-auto">
-        <header className="text-center py-4">
+        <header className="text-center py-0">
           <div className="flex flex-col justify-center mb-4">
-            <h1 className="text-4xl md:text-6xl font-bold font-vt323 text-gray-800">
+            <h1 className="text-3xl md:text-5xl font-bold font-vt323 text-gray-800">
               {process.env.NEXT_PUBLIC_ENVIRONMENT !== "production" ? "(staging) " : ""}4byte.sourcify.dev
             </h1>
           </div>
@@ -332,7 +333,11 @@ function SearchInterface() {
 
         <div className="mx-auto mb-8">
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-stretch md:items-center" role="search">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col md:flex-row gap-4 items-stretch md:items-center"
+              role="search"
+            >
               <div className="flex-1">
                 <input
                   type="search"
