@@ -250,7 +250,7 @@ function SearchInterface() {
             </h1>
           </div>
           <p className="text-lg md:text-2xl text-gray-800 mx-auto px-4">
-            Ethereum function selector database created from Sourcify verified contracts.
+            Ethereum function selector database created from Sourcify verified contracts and submitted signatures.
           </p>
           <p className="text-sm md:text-base text-gray-600 mx-auto mt-4 px-4">
             4byte.sourcify.dev is created from Sourcify verified contracts and follows the{" "}
@@ -291,7 +291,7 @@ function SearchInterface() {
                 <div className="mt-1 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto text-gray-700">
                   <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
                     <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
-                      From Verified Contracts
+                      Found in a Verified Contract ABI
                       <FaQuestionCircle
                         className="w-3 h-3 text-gray-400 cursor-help"
                         data-tooltip-id="stats-tooltip"
@@ -306,7 +306,7 @@ function SearchInterface() {
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
                     <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
-                      No Associated Contract
+                      Public Submissions
                       <FaQuestionCircle
                         className="w-3 h-3 text-gray-400 cursor-help"
                         data-tooltip-id="stats-tooltip"
