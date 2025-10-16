@@ -334,16 +334,7 @@ export default function ImportPage() {
 
         {/* Import Form */}
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <FaUpload className="w-5 h-5 text-cerulean-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Import Function & Event Signatures</h2>
-          </div>
-
-          <p className="text-gray-600 text-sm mb-6">
-            Enter function and event signatures to import them into the database. You can use raw signatures, ABI JSON,
-            or individual signatures.
-          </p>
-
+          {" "}
           {/* Textarea */}
           <div className="mb-6">
             <label htmlFor="import-data" className="block text-sm font-medium text-gray-700 mb-2">
@@ -365,7 +356,6 @@ export default function ImportPage() {
               data-1p-ignore
             />
           </div>
-
           {/* Examples */}
           <div className="mb-6">
             <div className="flex flex-col gap-3">
@@ -386,7 +376,6 @@ export default function ImportPage() {
               </div>
             </div>
           </div>
-
           {/* Submit Button */}
           <div className="flex justify-center">
             <button
