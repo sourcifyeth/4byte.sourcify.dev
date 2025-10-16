@@ -67,8 +67,19 @@ function MobileMenu() {
 
 export default function Header() {
   return (
-    <header className="shadow-sm relative">
-      <div className="mx-auto py-4 flex items-center justify-between w-full max-w-[100rem] px-6 md:px-12 lg:px-12 xl:px-24">
+    <>
+      {/* Migration Banner */}
+      <div className="bg-cerulean-blue-600 text-white py-3 px-4 text-center">
+        <div className="max-w-[100rem] mx-auto">
+          <p className="text-sm md:text-base">
+            📢 <strong>Migration Notice:</strong> Sourcify is overtaking openchain.xyz and its APIs.
+            Please switch to <strong>api.4byte.sourcify.dev</strong> domain (same API endpoints).
+          </p>
+        </div>
+      </div>
+
+      <header className="shadow-sm relative">
+        <div className="mx-auto py-4 flex items-center justify-between w-full max-w-[100rem] px-6 md:px-12 lg:px-12 xl:px-24">
         <Link href="/" className="flex items-center">
           <Image src="/sourcify.png" alt="Sourcify Logo" className="h-10 w-auto mr-3" width={32} height={32} />
           <span className="text-gray-700 font-vt323 text-2xl">sourcify.eth</span>
@@ -123,5 +134,6 @@ export default function Header() {
         <MobileMenu />
       </div>
     </header>
+    </>
   );
 }
