@@ -22,6 +22,13 @@ function MobileMenu() {
         <div className="absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 md:hidden z-50">
           <div className="flex flex-col p-4 gap-4">
             <Link
+              href="/import"
+              className="text-gray-600 hover:text-cerulean-blue-400 transition-colors font-medium"
+              onClick={() => setIsOpen(false)}
+            >
+              Import/Submit Signatures
+            </Link>
+            <Link
               href="https://api.openchain.xyz"
               target="_blank"
               rel="noopener noreferrer"
@@ -69,6 +76,12 @@ export default function Header() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
+          <Link
+            href="/import"
+            className="text-gray-600 hover:text-cerulean-blue-400 transition-colors font-medium"
+          >
+            Import/Submit Signatures
+          </Link>
           <Link
             href="https://sourcify.dev"
             target="_blank"
