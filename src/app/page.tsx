@@ -5,7 +5,7 @@ import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaQuestionCircle, FaCheckCircle } from "react-icons/fa";
+import { FaQuestionCircle, FaCheckCircle, FaBan } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 
 interface SearchResult {
@@ -25,7 +25,7 @@ interface ApiResult {
 interface ApiResponse {
   ok: boolean;
   result: {
-    function?: Record<string, ApiResult[]>;
+    function?: Record<string, ApiResult[] | null>;
     event?: Record<string, ApiResult[]>;
   };
 }
@@ -115,6 +115,7 @@ function SearchInterface() {
         const params = new URLSearchParams();
         params.append("function", hexQuery);
         params.append("event", hexQuery);
+        params.append("filter", "false"); // don't filter but show visually
 
         const response = await fetch(`${API_BASE_URL}/signature-database/v1/lookup?${params.toString()}`);
         const data: ApiResponse = await response.json();
@@ -124,7 +125,7 @@ function SearchInterface() {
         // Add function results
         if (data.result.function) {
           Object.entries(data.result.function).forEach(([hex, sigs]) => {
-            sigs.forEach((sig) =>
+            sigs?.forEach((sig) =>
               newResults.push({
                 name: sig.name,
                 filtered: sig.filtered,
@@ -170,7 +171,7 @@ function SearchInterface() {
         // Add function results
         if (data.result.function) {
           Object.entries(data.result.function).forEach(([hex, sigs]) => {
-            sigs.forEach((sig) =>
+            sigs?.forEach((sig) =>
               newResults.push({
                 name: sig.name,
                 filtered: sig.filtered,
@@ -434,7 +435,11 @@ function SearchInterface() {
                         </td>
                         <td className="py-2">
                           <div className="flex items-center gap-1 md:gap-2">
-                            <span className="flex items-center gap-1 font-mono text-xs md:text-sm text-gray-900 break-all xl:break-normal w-[150px] md:w-[400px] xl:w-auto xl:max-w-none">
+                            <span
+                              className={`flex items-center gap-1 font-mono text-xs md:text-sm break-all xl:break-normal w-[150px] md:w-[400px] xl:w-auto xl:max-w-none ${
+                                result.filtered ? "text-gray-300" : "text-gray-900"
+                              }`}
+                            >
                               {result.hex_signature}
                               <CopyButton text={result.hex_signature} title="Copy hash" />
                             </span>
@@ -442,7 +447,18 @@ function SearchInterface() {
                         </td>
                         <td className="pl-2 md:pl-6 py-2">
                           <div className="flex items-center gap-1 md:gap-2">
-                            <span className="flex items-center gap-1 font-mono text-xs md:text-sm text-gray-900">
+                            {result.filtered && (
+                              <FaBan
+                                className="w-4 h-4 text-gray-400 cursor-help"
+                                data-tooltip-id="spam-badge-tooltip"
+                                data-tooltip-content="This signature has been flagged as potential spam"
+                              />
+                            )}
+                            <span
+                              className={`flex items-center gap-1 font-mono text-xs md:text-sm ${
+                                result.filtered ? "text-gray-300" : "text-gray-900"
+                              }`}
+                            >
                               {result.name} <CopyButton text={result.name} title="Copy name" />
                             </span>
                           </div>
@@ -458,6 +474,7 @@ function SearchInterface() {
       </div>
       <Tooltip id="stats-tooltip" place="top" className="max-w-sm" />
       <Tooltip id="verified-badge-tooltip" place="top" />
+      <Tooltip id="spam-badge-tooltip" place="top" />
     </div>
   );
 }
