@@ -27,7 +27,6 @@ interface ApiResponse {
   result: {
     function?: Record<string, ApiResult[]>;
     event?: Record<string, ApiResult[]>;
-    error?: Record<string, ApiResult[]>;
   };
 }
 
@@ -116,7 +115,6 @@ function SearchInterface() {
         const params = new URLSearchParams();
         params.append("function", hexQuery);
         params.append("event", hexQuery);
-        params.append("error", hexQuery);
 
         const response = await fetch(`${API_BASE_URL}/signature-database/v1/lookup?${params.toString()}`);
         const data: ApiResponse = await response.json();
@@ -147,21 +145,6 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "event",
-                hasVerifiedContract: sig.hasVerifiedContract,
-              })
-            );
-          });
-        }
-
-        // Add error results
-        if (data.result.error) {
-          Object.entries(data.result.error).forEach(([hex, sigs]) => {
-            sigs.forEach((sig) =>
-              newResults.push({
-                name: sig.name,
-                filtered: sig.filtered,
-                hex_signature: hex,
-                type: "error",
                 hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
@@ -208,21 +191,6 @@ function SearchInterface() {
                 filtered: sig.filtered,
                 hex_signature: hex,
                 type: "event",
-                hasVerifiedContract: sig.hasVerifiedContract,
-              })
-            );
-          });
-        }
-
-        // Add error results
-        if (data.result.error) {
-          Object.entries(data.result.error).forEach(([hex, sigs]) => {
-            sigs.forEach((sig) =>
-              newResults.push({
-                name: sig.name,
-                filtered: sig.filtered,
-                hex_signature: hex,
-                type: "error",
                 hasVerifiedContract: sig.hasVerifiedContract,
               })
             );
