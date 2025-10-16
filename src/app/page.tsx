@@ -388,7 +388,7 @@ function SearchInterface() {
               </div>
             </div>
 
-            <div className="mt-6 text-xs md:text-sm text-gray-600 space-y-1">
+            {/* <div className="mt-6 text-xs md:text-sm text-gray-600 space-y-1">
               <div>
                 <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards, case sensitive.
               </div>
@@ -398,7 +398,7 @@ function SearchInterface() {
               <div>
                 <b>?q=0x12345678 in URL:</b> Use the ?q=0x12345678 query parameter for a sharable link.
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
