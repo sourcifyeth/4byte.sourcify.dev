@@ -208,6 +208,14 @@ function SearchInterface() {
     }
 
     setLoading(false);
+
+    // Scroll to results after search completion
+    setTimeout(() => {
+      const resultsSection = document.querySelector("#search-results");
+      if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -403,7 +411,7 @@ function SearchInterface() {
         </div>
 
         {loading && (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 md:p-8 mb-6 mx-2">
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 md:p-8 mb-6">
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-6 md:h-8 w-6 md:w-8 border-b-2 border-cerulean-blue-600"></div>
               <span className="ml-3 text-sm md:text-base text-gray-600">Searching...</span>
@@ -412,16 +420,16 @@ function SearchInterface() {
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 mx-2">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <div className="text-red-800 font-medium text-sm md:text-base">Error</div>
             <div className="text-red-700 text-xs md:text-sm mt-1">{error}</div>
           </div>
         )}
 
         {!loading && results && results.length === 0 && query.trim() && !error && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 mx-2 text-center">
+          <div id="search-results" className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 text-center">
             <div className="text-gray-600 text-sm md:text-base">
-              No results found for <span className="font-mono font-semibold">"{query}"</span>
+              No results found for <span className="font-mono font-semibold">&quot;{query}&quot;</span>
             </div>
             <div className="text-gray-500 text-xs md:text-sm mt-2">
               Try using wildcards (*) or check your search syntax
@@ -431,15 +439,15 @@ function SearchInterface() {
 
         {!loading && results && results.length > 0 && (
           <>
-            <div className="text-xs md:text-sm text-gray-600 px-2 mb-2">
+            <div id="search-results" className="text-xs md:text-sm text-gray-600 mb-2">
               Showing {results.length} result{results.length > 1 ? "s" : ""}
             </div>
             {results.length && results.length % 100 === 0 && (
-              <div className="text-xs md:text-sm text-gray-600 px-2 mb-4">
+              <div className="text-xs md:text-sm text-gray-600 mb-4">
                 Results are limited to 100 for each type. Try to be more specific with the query.
               </div>
             )}
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mx-2">
+            <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-cerulean-blue-500 text-white">
