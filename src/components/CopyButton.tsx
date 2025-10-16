@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from 'react';
-import { MdContentCopy, MdCheck } from 'react-icons/md';
-import { Tooltip } from 'react-tooltip';
+import { useState } from "react";
+import { MdContentCopy, MdCheck } from "react-icons/md";
+import { Tooltip } from "react-tooltip";
 
 interface CopyButtonProps {
   text: string;
@@ -20,7 +20,12 @@ export default function CopyButton({ text, title = "Copy to clipboard", classNam
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+      } else {
+        console.error("An unknown error occurred");
+      }
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = text;
@@ -42,17 +47,9 @@ export default function CopyButton({ text, title = "Copy to clipboard", classNam
         data-tooltip-id={buttonId}
         data-tooltip-content={copied ? "Copied!" : title}
       >
-        {copied ? (
-          <MdCheck className="w-4 h-4 text-green-600" />
-        ) : (
-          <MdContentCopy className="w-4 h-4 text-gray-500" />
-        )}
+        {copied ? <MdCheck className="w-4 h-4 text-green-600" /> : <MdContentCopy className="w-4 h-4 text-gray-500" />}
       </button>
-      <Tooltip 
-        id={buttonId} 
-        place="top" 
-        className={copied ? "!bg-green-600" : ""}
-      />
+      <Tooltip id={buttonId} place="top" className={copied ? "!bg-green-600" : ""} />
     </>
   );
 }

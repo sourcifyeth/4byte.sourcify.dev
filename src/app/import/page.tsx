@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { FaArrowLeft, FaUpload } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa";
 import { ethers } from "ethers";
 
 // Example data
@@ -218,8 +216,12 @@ export default function ImportPage() {
       setAlertMessage(
         `Imported ${impFunctions} functions and ${impEvents} events! Skipped ${dupFunctions} functions and ${dupEvents} events.`
       );
-    } catch (err: any) {
-      setError(`An error occurred: ${err.message}`);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(`An error occurred: ${err.message}`);
+      } else {
+        setError(`An unknown error occurred`);
+      }
     } finally {
       setIsImporting(false);
     }
