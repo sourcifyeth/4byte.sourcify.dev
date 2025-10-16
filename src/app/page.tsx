@@ -251,11 +251,8 @@ function SearchInterface() {
               {process.env.NEXT_PUBLIC_ENVIRONMENT !== "production" ? "(staging) " : ""}4byte.sourcify.dev
             </h1>
           </div>
-          <p className="text-lg md:text-2xl text-gray-800 mx-auto px-4">
-            Ethereum function selector database created from Sourcify verified contracts and submitted signatures.
-          </p>
           <p className="text-sm md:text-base text-gray-600 mx-auto mt-4 px-4">
-            4byte.sourcify.dev is created from Sourcify verified contracts and follows the{" "}
+            Created from Sourcify verified contracts and follows the{" "}
             <a
               href="https://openchain.xyz"
               target="_blank"
