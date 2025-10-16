@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FaQuestionCircle, FaCheckCircle, FaBan } from "react-icons/fa";
+import { HiOutlineCursorClick } from "react-icons/hi";
 import { Tooltip } from "react-tooltip";
 
 interface SearchResult {
@@ -51,7 +51,6 @@ const exampleSelectors = [
 ];
 
 function SearchInterface() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [query, setQuery] = useState("");
@@ -354,7 +353,10 @@ function SearchInterface() {
 
             {/* Example Selectors */}
             <div className="mt-6">
-              <div className="text-sm md:text-base font-medium text-gray-800 mb-2">Try Some Examples</div>
+              <div className="text-sm md:text-base font-medium text-gray-800 mb-2 flex items-center gap-1">
+                Try Some Examples
+                <HiOutlineCursorClick className="w-5 h-5 text-gray-600" />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {exampleSelectors.map((example, i) => (
                   <button
