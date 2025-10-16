@@ -54,7 +54,7 @@ function SearchInterface() {
   const searchParams = useSearchParams();
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<SearchResult[] | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +77,7 @@ function SearchInterface() {
 
     setLoading(true);
     setError(null);
-    setResults([]);
+    setResults(undefined);
 
     const trimmedQuery = searchQuery.trim();
 
@@ -337,7 +337,16 @@ function SearchInterface() {
                 <input
                   type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setResults(undefined);
+                    setError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSubmit(e);
+                    }
+                  }}
                   placeholder="e.g. 'balanceOf(address)' or '0xa9059cbb'"
                   className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:border-cerulean-blue-500 focus:ring-2 focus:ring-cerulean-blue-200 transition-all text-sm md:text-base"
                 />
@@ -401,12 +410,23 @@ function SearchInterface() {
           </div>
         )}
 
-        {!loading && results.length > 0 && (
+        {!loading && results && results.length === 0 && query.trim() && !error && (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 mx-2 text-center">
+            <div className="text-gray-600 text-sm md:text-base">
+              No results found for <span className="font-mono font-semibold">"{query}"</span>
+            </div>
+            <div className="text-gray-500 text-xs md:text-sm mt-2">
+              Try using wildcards (*) or check your search syntax
+            </div>
+          </div>
+        )}
+
+        {!loading && results && results.length > 0 && (
           <>
             <div className="text-xs md:text-sm text-gray-600 px-2 mb-2">
               Showing {results.length} result{results.length > 1 ? "s" : ""}
             </div>
-            {results.length % 100 === 0 && (
+            {results.length && results.length % 100 === 0 && (
               <div className="text-xs md:text-sm text-gray-600 px-2 mb-4">
                 Results are limited to 100 for each type. Try to be more specific with the query.
               </div>
