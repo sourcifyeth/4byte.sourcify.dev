@@ -289,7 +289,7 @@ function SearchInterface() {
                   </div>
                 )}
                 <div className="mt-1 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto text-gray-700">
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
                     <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
                       From Verified Contracts
                       <FaQuestionCircle
@@ -304,7 +304,7 @@ function SearchInterface() {
                       {stats.error !== undefined && <div>{stats.error.toLocaleString()} errors</div>}
                     </div>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
                     <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
                       No Associated Contract
                       <FaQuestionCircle
@@ -315,7 +315,7 @@ function SearchInterface() {
                     </div>
                     <div>{stats.unknown !== undefined && <span>{stats.unknown.toLocaleString()}</span>}</div>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
                     <div className="text-sm text-gray-400 mb-2">Total Signatures</div>
                     <div className="font-semibold">
                       {stats.total !== undefined && <span>{stats.total.toLocaleString()}</span>}
