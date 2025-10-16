@@ -43,11 +43,11 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_OPENCHAIN_API_URL || "https://api.o
 
 // Example selectors for users to try
 const exampleSelectors = [
-  "0xa9059cbb",
-  "transfer*",
-  "*Supply*",
-  "transferFrom(address,address,uint256)",
-  "0xbb757047c2b5f3974fe26b7c10f732e7bce710b0952a71082702781e62ae0595",
+  { query: "0xa9059cbb", description: "4-byte function selector" },
+  { query: "transfer*", description: "Wildcard text search for signatures starting with 'transfer'" },
+  { query: "*Supply*", description: "Signatures containing 'Supply'" },
+  { query: "transferFrom(address,address,uint256)", description: "Full function signature" },
+  { query: "0xbb757047c2b5f3974fe26b7c10f732e7bce710b0952a71082702781e62ae0595", description: "32-byte event hash" },
 ];
 
 function SearchInterface() {
@@ -352,31 +352,32 @@ function SearchInterface() {
               </button>
             </form>
 
+            {/* Example Selectors */}
+            <div className="mt-6">
+              <div className="text-sm md:text-base font-medium text-gray-800 mb-2">Try Some Examples</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {exampleSelectors.map((example, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleExampleClick(example.query)}
+                    className="text-left bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-cerulean-blue-300 p-3 rounded-md transition-all cursor-pointer"
+                  >
+                    <div className="font-mono text-xs md:text-sm text-gray-900 break-all mb-1">{example.query}</div>
+                    <div className="text-xs text-gray-600">{example.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-6 text-xs md:text-sm text-gray-600 space-y-1">
               <div>
-                <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards, case insensitive.
+                <b>Text search:</b> Use &apos;*&apos; and &apos;?&apos; for wildcards, case sensitive.
               </div>
               <div>
                 <b>0x hash search:</b> Start with &apos;0x&apos;. Search 4byte or full 32 byte hash.
               </div>
               <div>
                 <b>?q=0x12345678 in URL:</b> Use the ?q=0x12345678 query parameter for a sharable link.
-              </div>
-            </div>
-
-            {/* Example Selectors */}
-            <div className="mt-6">
-              <div className="text-sm md:text-base font-medium text-gray-800 mb-2">Examples</div>
-              <div className="flex flex-wrap gap-2">
-                {exampleSelectors.map((example, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleExampleClick(example)}
-                    className="text-xs md:text-sm bg-gray-100 px-2 md:px-4 py-1 md:py-2 hover:bg-gray-200 text-gray-800 transition-colors font-mono cursor-pointer rounded-md break-all"
-                  >
-                    <span className="font-mono">{example}</span>
-                  </button>
-                ))}
               </div>
             </div>
           </div>
