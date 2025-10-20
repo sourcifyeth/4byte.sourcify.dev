@@ -487,7 +487,7 @@ function SearchInterface() {
                           <div className="flex items-center gap-1 md:gap-2">
                             {result.filtered && (
                               <FaBan
-                                className="w-4 h-4 text-gray-400 cursor-help"
+                                className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0"
                                 data-tooltip-id="spam-badge-tooltip"
                                 data-tooltip-content="This signature has been flagged as potential spam"
                               />
