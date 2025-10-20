@@ -1,12 +1,16 @@
 name: Release on Google Bucket
+
 on:
   push:
     branches:
       - main
+      - staging
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: deploy
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'deploy' || 'staging' }}
     permissions:
       contents: read
       packages: write
@@ -14,31 +18,61 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: "auth"
+
+      - name: "auth staging"
+        if: github.ref == 'refs/heads/staging'
         uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: "projects/1019539084286/locations/global/workloadIdentityPools/github/providers/sourcify"
-          service_account: "sourcify-4bytes-cd@sourcify-project.iam.gserviceaccount.com"
+          service_account: "sourcify-4byte-staging-cd@sourcify-project.iam.gserviceaccount.com"
+
+      - name: "auth main"
+        if: github.ref == 'refs/heads/main'
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: "projects/1019539084286/locations/global/workloadIdentityPools/github/providers/sourcify"
+          service_account: "sourcify-4byte-cd@sourcify-project.iam.gserviceaccount.com"
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "22.4.0"
+
       - name: Install dependencies
         run: npm install
+
       - name: Build
         run: npm run build
         env:
           NEXT_PUBLIC_OPENCHAIN_API_URL: ${{ vars.NEXT_PUBLIC_OPENCHAIN_API_URL }}
           NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
+
       - name: "setup-gcloud"
         uses: "google-github-actions/setup-gcloud@v2"
 
-      - name: Clear bucket
+      - name: Clear staging bucket
         if: github.ref == 'refs/heads/staging'
         run: |
           # Clear the bucket
+          gsutil -m rm gs://4bytes-sourcify-staging/** || true
+
+      - name: Clear main bucket
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Clear the bucket
           gsutil -m rm gs://4bytes-sourcify/** || true
-      - name: "upload-files"
+
+      - name: Upload files to staging bucket
+        if: github.ref == 'refs/heads/staging'
+        uses: "google-github-actions/upload-cloud-storage@v2"
+        with:
+          path: "out"
+          destination: "4bytes-sourcify-staging"
+          parent: false
+          glob: "**/*"
+
+      - name: Upload files to main bucket
+        if: github.ref == 'refs/heads/main'
         uses: "google-github-actions/upload-cloud-storage@v2"
         with:
           path: "out"

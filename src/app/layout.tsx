@@ -27,7 +27,9 @@ const vt323 = VT323({
 });
 
 export const metadata: Metadata = {
-  title: "4byte.sourcify.dev - Sourcify Ethereum Signature Database",
+  title:
+    (process.env.NEXT_PUBLIC_ENVIRONMENT !== "production" ? "(staging) " : "") +
+    "4byte.sourcify.dev - Sourcify Ethereum Signature Database",
   description: "Search and lookup Ethereum function and event signatures from Sourcify",
   keywords: ["Ethereum", "Smart Contracts", "Sourcify", "Blockchain", "Solidity", "4byte", "Signatures"],
   authors: [{ name: "Sourcify" }],
