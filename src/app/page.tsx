@@ -306,9 +306,9 @@ function SearchInterface() {
                       />
                     </div>
                     <div className="space-y-1">
-                      {stats.function !== undefined && <div>{stats.function.toLocaleString()} functions</div>}
-                      {stats.event !== undefined && <div>{stats.event.toLocaleString()} events</div>}
-                      {stats.error !== undefined && <div>{stats.error.toLocaleString()} errors</div>}
+                      {stats.function !== undefined && <div>{stats.function.toLocaleString()} function sigs</div>}
+                      {stats.event !== undefined && <div>{stats.event.toLocaleString()} event sigs</div>}
+                      {stats.error !== undefined && <div>{stats.error.toLocaleString()} error sigs</div>}
                     </div>
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
@@ -489,7 +489,7 @@ function SearchInterface() {
                               <FaBan
                                 className="w-4 h-4 text-gray-400 cursor-help flex-shrink-0"
                                 data-tooltip-id="spam-badge-tooltip"
-                                data-tooltip-content="This signature has been flagged as potential spam"
+                                data-tooltip-content="This signature is a hash collision and flagged as potential spam"
                               />
                             )}
                             <span
