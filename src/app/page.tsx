@@ -306,9 +306,9 @@ function SearchInterface() {
                       />
                     </div>
                     <div className="space-y-1">
-                      {stats.function !== undefined && <div>{stats.function.toLocaleString()} function sigs</div>}
-                      {stats.event !== undefined && <div>{stats.event.toLocaleString()} event sigs</div>}
-                      {stats.error !== undefined && <div>{stats.error.toLocaleString()} error sigs</div>}
+                      {stats.function !== undefined && <div>{stats.function.toLocaleString()} function signatures</div>}
+                      {stats.event !== undefined && <div>{stats.event.toLocaleString()} event signatures</div>}
+                      {stats.error !== undefined && <div>{stats.error.toLocaleString()} error signatures</div>}
                     </div>
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
