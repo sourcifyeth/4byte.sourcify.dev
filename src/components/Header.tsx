@@ -88,7 +88,7 @@ export default function Header() {
 
       <header className="shadow-sm relative">
         <div className="mx-auto py-4 flex items-center justify-between w-full max-w-[100rem] px-6 md:px-12 lg:px-12 xl:px-24">
-          <Link href="/" className="flex items-center">
+          <Link href="https://sourcify.dev" target="_blank" rel="noopener" className="flex items-center">
             <Image src="/sourcify.png" alt="Sourcify Logo" className="h-10 w-auto mr-3" width={32} height={32} />
             <span className="text-gray-700 font-vt323 text-2xl">sourcify.eth</span>
           </Link>

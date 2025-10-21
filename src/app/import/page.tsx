@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { FaUpload } from "react-icons/fa";
+import { FaUpload, FaArrowLeft } from "react-icons/fa";
 import { ethers } from "ethers";
+import Link from "next/link";
 
 // Example data
 const examples = {
@@ -320,6 +321,16 @@ export default function ImportPage() {
     <div className="min-h-screen">
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-cerulean-blue-400 transition-colors font-medium"
+          >
+            <FaArrowLeft className="w-4 h-4" />
+            Back to Search
+          </Link>
+        </div>
         {/* Alert Messages */}
         {alertMessage && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
