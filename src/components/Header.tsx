@@ -69,7 +69,7 @@ export default function Header() {
   return (
     <>
       {/* Migration Banner */}
-      <div className="bg-cerulean-blue-600 text-white py-3 px-4 text-center">
+      <div className="bg-cerulean-blue-500 text-white py-3 px-4 text-center">
         <div className="max-w-[100rem] mx-auto">
           <p className="text-sm md:text-base">
             📢 <strong>Migration Notice:</strong> Sourcify is taking over{" "}
