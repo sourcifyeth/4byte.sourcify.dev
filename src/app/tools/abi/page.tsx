@@ -25,7 +25,8 @@ export default function ABIDecoderPage() {
               <div>
                 <h2 className="text-lg font-semibold text-gray-800 mb-2">ABI Decoder Has Moved</h2>
                 <p className="text-gray-700 mb-4">
-                  We no longer maintain openchain.xyz's ABI decoder. Please use Swiss Knife's ABI decoder instead.
+                  We no longer maintain openchain.xyz&apos;s ABI decoder. Please use Swiss Knife&apos;s ABI decoder
+                  instead.
                 </p>
                 <a
                   href="https://calldata.swiss-knife.xyz/decoder"
