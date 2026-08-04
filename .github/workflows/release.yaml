@@ -17,24 +17,24 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.4.0
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: "auth staging"
         if: github.ref == 'refs/heads/staging'
-        uses: "google-github-actions/auth@v2.1.13"
+        uses: "google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed" # v2.1.13
         with:
           workload_identity_provider: "projects/1019539084286/locations/global/workloadIdentityPools/github/providers/sourcify"
           service_account: "sourcify-4byte-staging-cd@sourcify-project.iam.gserviceaccount.com"
 
       - name: "auth main"
         if: github.ref == 'refs/heads/main'
-        uses: "google-github-actions/auth@v2.1.13"
+        uses: "google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed" # v2.1.13
         with:
           workload_identity_provider: "projects/1019539084286/locations/global/workloadIdentityPools/github/providers/sourcify"
           service_account: "sourcify-4byte-cd@sourcify-project.iam.gserviceaccount.com"
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3.9.1
+        uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
         with:
           node-version: "22.4.0"
 
@@ -49,7 +49,7 @@ jobs:
           NEXT_PUBLIC_ENVIRONMENT: ${{ vars.NEXT_PUBLIC_ENVIRONMENT }}
 
       - name: "setup-gcloud"
-        uses: "google-github-actions/setup-gcloud@v2.2.1"
+        uses: "google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f" # v2.2.1
 
       - name: Clear staging bucket
         if: github.ref == 'refs/heads/staging'
@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload files to staging bucket
         if: github.ref == 'refs/heads/staging'
-        uses: "google-github-actions/upload-cloud-storage@v2.2.4"
+        uses: "google-github-actions/upload-cloud-storage@c0f6160ff80057923ff50e5e567695cea181ec23" # v2.2.4
         with:
           path: "out"
           destination: "4bytes-sourcify-staging"
@@ -74,7 +74,7 @@ jobs:
 
       - name: Upload files to main bucket
         if: github.ref == 'refs/heads/main'
-        uses: "google-github-actions/upload-cloud-storage@v2.2.4"
+        uses: "google-github-actions/upload-cloud-storage@c0f6160ff80057923ff50e5e567695cea181ec23" # v2.2.4
         with:
           path: "out"
           destination: "4bytes-sourcify"
