@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import CopyButton from "@/components/CopyButton";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -60,6 +60,7 @@ function SearchInterface() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [statsDate, setStatsDate] = useState<string | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Update URL with search query
   const updateURL = (searchQuery: string) => {
@@ -248,6 +249,8 @@ function SearchInterface() {
       performSearch(urlQuery);
     }
     fetchStats();
+    // Focus the search input on load so the user can type immediately
+    searchInputRef.current?.focus();
   }, []); // Empty dependency array - only run on mount
 
   return (
@@ -348,6 +351,7 @@ function SearchInterface() {
             >
               <div className="flex-1">
                 <input
+                  ref={searchInputRef}
                   type="search"
                   name="search"
                   value={query}
