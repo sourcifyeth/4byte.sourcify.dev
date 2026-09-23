@@ -55,13 +55,13 @@ jobs:
         if: github.ref == 'refs/heads/staging'
         run: |
           # Clear the bucket
-          gsutil -m rm gs://4bytes-sourcify-staging/** || true
+          gcloud storage rm "gs://4bytes-sourcify-staging/**" || true
 
       - name: Clear main bucket
         if: github.ref == 'refs/heads/main'
         run: |
           # Clear the bucket
-          gsutil -m rm gs://4bytes-sourcify/** || true
+          gcloud storage rm "gs://4bytes-sourcify/**" || true
 
       - name: Upload files to staging bucket
         if: github.ref == 'refs/heads/staging'
