@@ -18,6 +18,7 @@ import {
   StatsCount,
   takeFromQueue,
   timeAgo,
+  trimQueue,
 } from "@/lib/liveSignatures";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_OPENCHAIN_API_URL || "https://api.openchain.xyz";
@@ -35,8 +36,16 @@ const MAX_PAGES = 5;
 // At most this many rows come in each second
 const MAX_ROWS_PER_SECOND = 4;
 const MAX_ROWS = 20;
+// The queue keeps the newest rows only, so a burst does not make the feed lag
+const MAX_QUEUED_ROWS = 40;
+// After failed polls, wait longer each time, up to this
+const MAX_POLL_BACKOFF_MS = 60_000;
+// /recent rejects a since older than one day
+const MAX_SINCE_AGE_MS = 23 * 60 * 60_000;
 
-type FeedState = "loading" | "ok" | "error";
+// "unavailable": /recent never worked, for example on an old backend. The feed hides.
+// "reconnecting": /recent worked before and fails now. The feed stays.
+type FeedState = "loading" | "ok" | "reconnecting" | "unavailable";
 
 function useLiveSignatures() {
   const [count, setCount] = useState<StatsCount | null>(null);
@@ -52,8 +61,13 @@ function useLiveSignatures() {
   const queue = useRef<RecentSignature[]>([]);
   // signatureHash32 -> createdAt in ms, to remove the duplicates of the overlap
   const seen = useRef(new Map<string, number>());
-  // The start time of the last poll that succeeded
+  // The newest createdAt that the page has, from the server clock
+  const newestMs = useRef<number | null>(null);
+  // The client time of the last poll that succeeded
   const lastPollMs = useRef<number | null>(null);
+  // refreshed_at of the newest /stats response. /stats already counts the
+  // signatures before it, so the feed adds only the newer ones.
+  const statsCutoffMs = useRef(0);
 
   useEffect(() => {
     let stopped = false;
@@ -61,12 +75,21 @@ function useLiveSignatures() {
     let statsTimer: ReturnType<typeof setInterval> | undefined;
     let releaseTimer: ReturnType<typeof setTimeout> | undefined;
     let polling = false;
+    let loaded = false;
+    let failedPolls = 0;
+
+    const addToCount = (sigs: RecentSignature[]) => {
+      const newer = sigs.filter((sig) => Date.parse(sig.createdAt) > statsCutoffMs.current);
+      if (newer.length > 0) setCount((current) => (current ? countSignatures(current, newer) : current));
+    };
 
     const fetchStats = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/signature-database/v1/stats`, { cache: "no-store" });
         const data = await response.json();
         if (stopped) return;
+        const refreshedMs = Date.parse(data.result.metadata.refreshed_at);
+        if (refreshedMs > statsCutoffMs.current) statsCutoffMs.current = refreshedMs;
         setCount((shown) => mergeStats(shown, data.result.count));
         setRefreshedAt(data.result.metadata.refreshed_at);
         setStatsError(false);
@@ -76,9 +99,10 @@ function useLiveSignatures() {
       }
     };
 
-    // All new signatures since sinceMs, oldest first, without the ones that the page has
+    // All new signatures since sinceMs, oldest first, without the ones that the page has.
+    // The hashes count as seen only after all pages arrived, so a failed page loses nothing.
     const fetchRecent = async (sinceMs: number): Promise<RecentSignature[]> => {
-      const found: RecentSignature[] = [];
+      const found = new Map<string, RecentSignature>();
       let cursor: string | null = null;
       for (let page = 0; page < MAX_PAGES; page++) {
         const params = new URLSearchParams({ since: new Date(sinceMs).toISOString(), limit: "500" });
@@ -89,19 +113,22 @@ function useLiveSignatures() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data: RecentResponse = await response.json();
         for (const sig of data.result.signatures) {
-          if (seen.current.has(sig.signatureHash32)) continue;
-          seen.current.set(sig.signatureHash32, Date.parse(sig.createdAt));
-          found.push(sig);
+          if (!seen.current.has(sig.signatureHash32)) found.set(sig.signatureHash32, sig);
         }
         cursor = data.result.next;
         if (!cursor) break;
+      }
+      for (const sig of found.values()) {
+        const createdMs = Date.parse(sig.createdAt);
+        seen.current.set(sig.signatureHash32, createdMs);
+        newestMs.current = Math.max(newestMs.current ?? 0, createdMs);
       }
       // Forget the hashes that the overlap cannot give again
       const oldest = sinceMs - OVERLAP_MS;
       for (const [hash, createdMs] of seen.current) {
         if (createdMs < oldest) seen.current.delete(hash);
       }
-      return found;
+      return [...found.values()];
     };
 
     const release = () => {
@@ -115,7 +142,7 @@ function useLiveSignatures() {
       } else {
         setRows((current) => addToFeed(current, taken, MAX_ROWS, true));
       }
-      setCount((current) => (current ? countSignatures(current, taken) : current));
+      addToCount(taken);
       if (rest.length > 0) {
         releaseTimer = setTimeout(release, releaseDelayMs(rowsInQueue(rest), POLL_MS, MAX_ROWS_PER_SECOND));
       }
@@ -126,28 +153,38 @@ function useLiveSignatures() {
       const now = Date.now();
       // At start, or after a long time in a hidden tab: show the last minutes at once
       const catchUp = lastPollMs.current === null || now - lastPollMs.current > INITIAL_WINDOW_MS;
+      // After start, ask from the newest createdAt, so a wrong client clock does not matter
+      const sinceMs = catchUp
+        ? now - INITIAL_WINDOW_MS
+        : Math.max((newestMs.current ?? lastPollMs.current!) - OVERLAP_MS, now - MAX_SINCE_AGE_MS);
       try {
-        const sigs = await fetchRecent(catchUp ? now - INITIAL_WINDOW_MS : lastPollMs.current! - OVERLAP_MS);
+        const sigs = await fetchRecent(sinceMs);
         if (stopped) return;
         lastPollMs.current = now;
+        loaded = true;
+        failedPolls = 0;
         if (catchUp) {
           queue.current = [];
           held.current = [];
           setHeldCount(0);
           setRows((current) => addToFeed(current, sigs, MAX_ROWS, false));
         } else if (sigs.length > 0) {
-          queue.current.push(...sigs);
+          const { kept, dropped } = trimQueue([...queue.current, ...sigs], MAX_QUEUED_ROWS);
+          queue.current = kept;
+          addToCount(dropped);
           if (!releaseTimer) release();
         }
         setFeedState("ok");
       } catch (error) {
         console.error("Recent signatures error:", error);
-        if (!stopped) setFeedState("error");
+        failedPolls++;
+        if (!stopped) setFeedState(loaded ? "reconnecting" : "unavailable");
       } finally {
         polling = false;
       }
       if (!stopped && document.visibilityState === "visible") {
-        pollTimer = setTimeout(poll, POLL_MS);
+        const delay = failedPolls === 0 ? POLL_MS : Math.min(MAX_POLL_BACKOFF_MS, POLL_MS * 2 ** failedPolls);
+        pollTimer = setTimeout(poll, delay);
       }
     };
 
@@ -429,6 +466,14 @@ function FeedDetails({
 }) {
   const source = row.source;
   const title = sourceTitle(source, chainNames);
+  const closeButton = useRef<HTMLButtonElement>(null);
+
+  // Move the focus into the panel, and back to where it was when the panel closes
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    closeButton.current?.focus({ preventScroll: true });
+    return () => previous?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -464,6 +509,7 @@ function FeedDetails({
           )}
         </div>
         <button
+          ref={closeButton}
           type="button"
           onClick={onClose}
           aria-label="Close"
@@ -520,18 +566,23 @@ function Feed({
   const [hovered, setHovered] = useState(false);
   const box = useRef<HTMLDivElement>(null);
 
-  // The native events, not React's onMouseEnter/onMouseLeave: React reports a
-  // leave when a new row moves the row under the mouse.
+  // The native events, not React's: React reports a leave when a new row moves the
+  // row under the mouse. Only a mouse pauses the feed: on a touch screen, a tap
+  // would leave it paused until the next tap outside.
   useEffect(() => {
     const element = box.current;
     if (!element) return;
-    const enter = () => setHovered(true);
-    const leave = () => setHovered(false);
-    element.addEventListener("mouseenter", enter);
-    element.addEventListener("mouseleave", leave);
+    const enter = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") setHovered(true);
+    };
+    const leave = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") setHovered(false);
+    };
+    element.addEventListener("pointerenter", enter);
+    element.addEventListener("pointerleave", leave);
     return () => {
-      element.removeEventListener("mouseenter", enter);
-      element.removeEventListener("mouseleave", leave);
+      element.removeEventListener("pointerenter", enter);
+      element.removeEventListener("pointerleave", leave);
     };
   }, []);
 
@@ -554,18 +605,18 @@ function Feed({
   }, []);
 
   return (
-    <div
-      className="relative bg-white border border-gray-200 rounded-lg overflow-hidden"
-      ref={box}
-      data-paused={hovered || selectedKey !== null}
-    >
+    <div className="relative bg-white border border-gray-200 rounded-lg overflow-hidden" ref={box}>
       <div className="px-3 py-1.5 border-b border-gray-100 flex items-center justify-between gap-2">
         <span className="text-[11px] uppercase tracking-wide text-gray-500">
           New signatures
-          {heldCount > 0 && (
-            <span className="ml-2 normal-case tracking-normal text-cerulean-blue-600">
-              paused · {heldCount} new waiting
-            </span>
+          {feedState === "reconnecting" ? (
+            <span className="ml-2 normal-case tracking-normal text-gray-400">reconnecting...</span>
+          ) : (
+            heldCount > 0 && (
+              <span className="ml-2 normal-case tracking-normal text-cerulean-blue-600">
+                paused · {heldCount} new waiting
+              </span>
+            )
           )}
         </span>
         <span className="hidden sm:inline text-[11px] text-gray-400">
@@ -605,8 +656,8 @@ export default function LiveStats() {
   return (
     <div className="space-y-2">
       <StatsBar count={count} refreshedAt={refreshedAt} statsError={statsError} />
-      {/* If /recent fails, the numbers stay and the feed hides */}
-      {feedState !== "error" && (
+      {/* If /recent never worked, the numbers stay and the feed hides */}
+      {feedState !== "unavailable" && (
         <Feed rows={rows} feedState={feedState} heldCount={heldCount} setPaused={setPaused} />
       )}
     </div>

@@ -144,3 +144,18 @@ export function shortChainName(name: string): string {
   short = short.replace(/^Ethereum (Sepolia|Hoodi|Holesky|Goerli)$/, "$1");
   return short || name;
 }
+
+// Keeps the newest maxRows rows of the queue. The queue is oldest first. The
+// caller still counts the dropped signatures, so only the display skips them.
+export function trimQueue(
+  queue: RecentSignature[],
+  maxRows: number
+): { kept: RecentSignature[]; dropped: RecentSignature[] } {
+  const keys = [...new Set(queue.map(feedKey))];
+  if (keys.length <= maxRows) return { kept: queue, dropped: [] };
+  const keep = new Set(keys.slice(-maxRows));
+  return {
+    kept: queue.filter((sig) => keep.has(feedKey(sig))),
+    dropped: queue.filter((sig) => !keep.has(feedKey(sig))),
+  };
+}

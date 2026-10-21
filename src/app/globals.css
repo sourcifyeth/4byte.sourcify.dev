@@ -87,13 +87,6 @@
   animation: count-bump 1.2s ease-out;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-row-in,
-  .animate-row-flash,
-  .animate-count-bump {
-    animation: none;
-  }
-}
 
 /* Feed details: a panel that comes in from the right side of the feed */
 @keyframes slide-in-right {
@@ -110,6 +103,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .animate-row-in,
+  .animate-row-flash,
+  .animate-count-bump,
   .animate-slide-in-right {
     animation: none;
   }
