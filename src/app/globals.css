@@ -44,3 +44,73 @@
 .animate-fade-up {
   animation: fade-up 0.5s ease-out forwards;
 }
+
+/* Live feed: a new row comes in from the top, a row that gets new signatures flashes */
+@keyframes row-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes row-flash {
+  0% {
+    background-color: rgb(220 252 231 / 0.9);
+  }
+  100% {
+    background-color: rgb(220 252 231 / 0);
+  }
+}
+
+@keyframes count-bump {
+  0% {
+    color: #15803d;
+  }
+  100% {
+    color: inherit;
+  }
+}
+
+.animate-row-in {
+  animation: row-in 0.35s ease-out;
+}
+
+.animate-row-flash {
+  animation: row-flash 1.5s ease-out forwards;
+}
+
+.animate-count-bump {
+  animation: count-bump 1.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-row-in,
+  .animate-row-flash,
+  .animate-count-bump {
+    animation: none;
+  }
+}
+
+/* Feed details: a panel that comes in from the right side of the feed */
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in-right {
+    animation: none;
+  }
+}

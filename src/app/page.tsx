@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import CopyButton from "@/components/CopyButton";
+import LiveStats from "@/components/LiveStats";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { FaQuestionCircle, FaCheckCircle, FaBan } from "react-icons/fa";
+import { FaCheckCircle, FaBan } from "react-icons/fa";
 import { HiOutlineCursorClick } from "react-icons/hi";
 import { Tooltip } from "react-tooltip";
 
@@ -30,14 +31,6 @@ interface ApiResponse {
   };
 }
 
-interface Stats {
-  function?: number;
-  event?: number;
-  error?: number;
-  unknown?: number;
-  total?: number;
-}
-
 // API base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_OPENCHAIN_API_URL || "https://api.openchain.xyz";
 
@@ -57,9 +50,7 @@ function SearchInterface() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[] | undefined>(undefined);
   const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [statsDate, setStatsDate] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Update URL with search query
@@ -224,18 +215,6 @@ function SearchInterface() {
     await performSearch(query);
   };
 
-  const fetchStats = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/signature-database/v1/stats`);
-      const data = await response.json();
-      console.log("Stats data:", data);
-      setStats(data.result.count);
-      setStatsDate(data.result.metadata.refreshed_at);
-    } catch (error) {
-      console.error("Stats error:", error);
-    }
-  };
-
   const handleExampleClick = async (example: string) => {
     setQuery(example);
     await performSearch(example);
@@ -248,7 +227,6 @@ function SearchInterface() {
       setQuery(urlQuery);
       performSearch(urlQuery);
     }
-    fetchStats();
     // Focus the search input on load so the user can type immediately
     searchInputRef.current?.focus();
   }, []); // Empty dependency array - only run on mount
@@ -256,13 +234,11 @@ function SearchInterface() {
   return (
     <div className="min-h-screen py-2">
       <div className="max-w-6xl mx-auto">
-        <header className="text-center py-0">
-          <div className="flex flex-col justify-center mb-4">
-            <h1 className="text-3xl md:text-5xl font-bold font-vt323 text-gray-800">
-              {process.env.NEXT_PUBLIC_ENVIRONMENT !== "production" ? "(staging) " : ""}4byte.sourcify.dev
-            </h1>
-          </div>
-          <p className="text-sm md:text-base text-gray-600 mx-auto mt-4 px-4">
+        <header className="text-center">
+          <h1 className="text-2xl md:text-4xl font-bold font-vt323 text-gray-800">
+            {process.env.NEXT_PUBLIC_ENVIRONMENT !== "production" ? "(staging) " : ""}4byte.sourcify.dev
+          </h1>
+          <p className="text-xs md:text-sm text-gray-600 mx-auto mt-1 px-4">
             Created from Sourcify verified contracts and follows the{" "}
             <a
               href="https://openchain.xyz"
@@ -283,67 +259,13 @@ function SearchInterface() {
             </Link>
             .
           </p>
-          <div className="my-4">
-            {stats ? (
-              <>
-                {statsDate && (
-                  <div className="text-xs md:text-sm text-gray-400">
-                    Stats updated:{" "}
-                    {new Date(statsDate).toLocaleString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                )}
-                <div className="mt-1 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto text-gray-700">
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
-                    <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
-                      Found in a Verified Contract ABI
-                      <FaQuestionCircle
-                        className="w-3 h-3 text-gray-400 cursor-help"
-                        data-tooltip-id="stats-tooltip"
-                        data-tooltip-content="The signatures found in at least one verified contract ABI on Sourcify"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      {stats.function !== undefined && <div>{stats.function.toLocaleString()} function signatures</div>}
-                      {stats.event !== undefined && <div>{stats.event.toLocaleString()} event signatures</div>}
-                      {stats.error !== undefined && <div>{stats.error.toLocaleString()} error signatures</div>}
-                    </div>
-                  </div>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
-                    <div className="text-sm text-gray-400 mb-2 flex items-center justify-center gap-1">
-                      Public Submissions
-                      <FaQuestionCircle
-                        className="w-3 h-3 text-gray-400 cursor-help"
-                        data-tooltip-id="stats-tooltip"
-                        data-tooltip-content="Signatures without a verified contract on Sourcify. For signatures submitted via the /import endpoint or from other signature databases."
-                      />
-                    </div>
-                    <div>{stats.unknown !== undefined && <span>{stats.unknown.toLocaleString()}</span>}</div>
-                  </div>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-cerulean-blue-400 hover:shadow-md transition-all duration-200">
-                    <div className="text-sm text-gray-400 mb-2">Total Signatures</div>
-                    <div className="font-semibold">
-                      {stats.total !== undefined && <span>{stats.total.toLocaleString()}</span>}
-                    </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-cerulean-blue-600 border-t-transparent"></div>
-                <span>Loading stats...</span>
-              </div>
-            )}
+          <div className="my-3">
+            <LiveStats />
           </div>
         </header>
 
-        <div className="mx-auto mb-8">
-          <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="mx-auto mb-6">
+          <div className="bg-white p-3 md:p-4 rounded-lg shadow-lg border border-gray-200">
             <form
               onSubmit={handleSubmit}
               className="flex flex-col md:flex-row gap-4 items-stretch md:items-center"
@@ -381,20 +303,20 @@ function SearchInterface() {
             </form>
 
             {/* Example Selectors */}
-            <div className="mt-6">
-              <div className="text-sm md:text-base font-medium text-gray-800 mb-2 flex items-center gap-1">
+            <div className="mt-3">
+              <div className="text-sm font-medium text-gray-800 mb-1.5 flex items-center gap-1">
                 Try Some Examples
-                <HiOutlineCursorClick className="w-5 h-5 text-gray-600" />
+                <HiOutlineCursorClick className="w-4 h-4 text-gray-600" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {exampleSelectors.map((example, i) => (
                   <button
                     key={i}
                     onClick={() => handleExampleClick(example.query)}
-                    className="text-left bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-cerulean-blue-300 p-3 rounded-md transition-all cursor-pointer"
+                    className="text-left bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-cerulean-blue-300 px-2.5 py-1.5 rounded-md transition-all cursor-pointer"
                   >
-                    <div className="font-mono text-xs md:text-sm text-gray-900 break-all mb-1">{example.query}</div>
-                    <div className="text-xs text-gray-600">{example.description}</div>
+                    <div className="font-mono text-xs md:text-sm text-gray-900 break-all">{example.query}</div>
+                    <div className="text-[11px] text-gray-600 leading-snug">{example.description}</div>
                   </button>
                 ))}
               </div>
@@ -514,7 +436,6 @@ function SearchInterface() {
           </>
         )}
       </div>
-      <Tooltip id="stats-tooltip" place="top" className="max-w-sm" />
       <Tooltip id="verified-badge-tooltip" place="top" />
       <Tooltip id="spam-badge-tooltip" place="top" />
     </div>
