@@ -33,13 +33,13 @@ interface ApiResponse {
 // API base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_OPENCHAIN_API_URL || "https://api.openchain.xyz";
 
-// Example selectors for users to try
+// Example selectors for users to try. Each one returns in under 1 second on production.
 const exampleSelectors = [
   { query: "0xa9059cbb", description: "4-byte function selector" },
-  { query: "transfer*", description: "Wildcard text search for signatures starting with 'transfer'" },
+  { query: "multicall*", description: "Wildcard text search for signatures starting with 'multicall'" },
   { query: "*Supply*", description: "Signatures containing 'Supply'" },
   { query: "?all()", description: "Single char wildcard - matches 'call()', 'wall()', etc." },
-  { query: "transferFrom(address,address,uint256)", description: "Full function signature" },
+  { query: "balanceOf(address)", description: "Full function signature" },
   { query: "0xbb757047c2b5f3974fe26b7c10f732e7bce710b0952a71082702781e62ae0595", description: "32-byte event hash" },
 ];
 
