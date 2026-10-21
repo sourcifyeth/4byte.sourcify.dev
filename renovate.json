@@ -23,6 +23,7 @@
     "dependencyDashboardApproval": true
   },
   "rangeStrategy": "pin",
+  "lockFileMaintenance": { "enabled": true },
   "timezone": "Europe/Berlin",
   "schedule": ["before 6am on tuesday"]
 }
