@@ -388,21 +388,24 @@ function FeedRowView({
         <span className="shrink-0 min-w-[2.75rem] text-center rounded bg-green-50 text-green-700 text-xs font-semibold tabular-nums py-0.5">
           +{row.signatures.length}
         </span>
-        <span className={`shrink-0 text-sm font-medium truncate max-w-[13rem] ${source ? "text-gray-800" : "text-gray-600"}`}>
-          {title.name}
-        </span>
-        {title.chain && (
-          <span className="shrink-0 text-sm text-gray-600 truncate max-w-[10rem]" title={title.chainFull ?? undefined}>
-            <span className="text-gray-400">on </span>
-            {title.chain}
-          </span>
-        )}
-        {source && (
-          <span className="shrink-0 font-mono text-xs text-cerulean-blue-600">{shortAddress(source.address)}</span>
-        )}
-        <span className="min-w-0 flex-1 font-mono text-xs text-gray-500 truncate">
+        <span className="min-w-0 flex-1 font-mono text-xs text-gray-800 truncate">
           {examples.map((sig) => sig.signature).join("  ")}
-          {more > 0 && <span className="text-gray-400"> +{more} more</span>}
+          {more > 0 && <span className="font-sans text-gray-400"> +{more} more</span>}
+        </span>
+        <span className="shrink-0 flex items-center gap-1 text-xs text-gray-500 max-w-[45%] min-w-0">
+          <span className="text-gray-400">from</span>
+          {source ? (
+            <>
+              <span className="font-medium text-gray-800 truncate">{title.name}</span>
+              <span className="shrink-0 text-gray-400">on</span>
+              <span className="shrink-0 truncate max-w-[9rem]" title={title.chainFull ?? undefined}>
+                {title.chain}
+              </span>
+              <span className="shrink-0 font-mono text-cerulean-blue-600">{shortAddress(source.address)}</span>
+            </>
+          ) : (
+            <span className="text-gray-600">a public submission</span>
+          )}
         </span>
         <span className="shrink-0 text-[11px] text-gray-400 tabular-nums w-14 text-right">
           {timeAgo(row.createdAt, now)}
