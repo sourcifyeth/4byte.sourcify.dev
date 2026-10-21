@@ -97,22 +97,22 @@ export function mergeStats(shown: StatsCount | null, server: StatsCount): StatsC
   return next;
 }
 
-// The wait before the next signature leaves the queue. The queue empties in about
-// one poll interval, but at most maxPerSecond signatures show each second.
-export function releaseDelayMs(queueLength: number, pollIntervalMs: number, maxPerSecond: number): number {
+// The wait before the next row leaves the queue. The queue empties in about one
+// poll interval, but at most maxPerSecond rows show each second.
+export function releaseDelayMs(rowsInQueue: number, pollIntervalMs: number, maxPerSecond: number): number {
   const minDelay = 1000 / maxPerSecond;
-  if (queueLength <= 0) return minDelay;
-  return Math.max(minDelay, Math.min(1000, pollIntervalMs / queueLength));
+  if (rowsInQueue <= 0) return minDelay;
+  return Math.max(minDelay, Math.min(1000, pollIntervalMs / rowsInQueue));
 }
 
-// The signatures that leave the queue in one step. If the queue is too long to show
-// one signature at a time, all queued signatures of the first contract leave together.
-export function takeFromQueue(
-  queue: RecentSignature[],
-  groupAbove: number
-): { taken: RecentSignature[]; rest: RecentSignature[] } {
+export function rowsInQueue(queue: RecentSignature[]): number {
+  return new Set(queue.map(feedKey)).size;
+}
+
+// The signatures that leave the queue in one step: all queued signatures of the
+// first contract (or import), so a row shows its full count at once.
+export function takeFromQueue(queue: RecentSignature[]): { taken: RecentSignature[]; rest: RecentSignature[] } {
   if (queue.length === 0) return { taken: [], rest: [] };
-  if (queue.length <= groupAbove) return { taken: [queue[0]], rest: queue.slice(1) };
   const key = feedKey(queue[0]);
   return {
     taken: queue.filter((sig) => feedKey(sig) === key),

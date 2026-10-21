@@ -11,6 +11,7 @@ import {
   RecentResponse,
   RecentSignature,
   releaseDelayMs,
+  rowsInQueue,
   shortAddress,
   shortChainName,
   SignatureType,
@@ -31,7 +32,8 @@ const OVERLAP_MS = 60_000;
 // The feed at start, and after the tab was hidden for longer than this
 const INITIAL_WINDOW_MS = 10 * 60_000;
 const MAX_PAGES = 5;
-const MAX_PER_SECOND = 6;
+// At most this many rows come in each second
+const MAX_ROWS_PER_SECOND = 4;
 const MAX_ROWS = 20;
 
 type FeedState = "loading" | "ok" | "error";
@@ -105,7 +107,7 @@ function useLiveSignatures() {
     const release = () => {
       releaseTimer = undefined;
       if (stopped || queue.current.length === 0) return;
-      const { taken, rest } = takeFromQueue(queue.current, (MAX_PER_SECOND * POLL_MS) / 1000);
+      const { taken, rest } = takeFromQueue(queue.current);
       queue.current = rest;
       if (paused.current) {
         held.current.push(...taken);
@@ -115,7 +117,7 @@ function useLiveSignatures() {
       }
       setCount((current) => (current ? countSignatures(current, taken) : current));
       if (rest.length > 0) {
-        releaseTimer = setTimeout(release, releaseDelayMs(rest.length, POLL_MS, MAX_PER_SECOND));
+        releaseTimer = setTimeout(release, releaseDelayMs(rowsInQueue(rest), POLL_MS, MAX_ROWS_PER_SECOND));
       }
     };
 
