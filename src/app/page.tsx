@@ -5,8 +5,7 @@ import CopyButton from "@/components/CopyButton";
 import LiveStats from "@/components/LiveStats";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { FaCheckCircle, FaBan } from "react-icons/fa";
-import { HiOutlineCursorClick } from "react-icons/hi";
+import { FaCheckCircle, FaBan, FaSearch } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 
 interface SearchResult {
@@ -264,14 +263,21 @@ function SearchInterface() {
           </div>
         </header>
 
-        <div className="mx-auto mb-6">
-          <div className="bg-white p-3 md:p-4 rounded-lg shadow-lg border border-gray-200">
+        <div className="mx-auto mb-6 pt-4">
+          <div className="bg-white p-3 md:p-4 rounded-lg shadow-md border border-gray-200">
+            <div className="flex flex-wrap items-baseline gap-x-2 mb-1.5">
+              <h2 className="text-base font-semibold text-gray-800">Search signatures</h2>
+              <span className="text-xs text-gray-500">
+                by name with * and ? wildcards, by 4-byte selector, or by 32-byte hash
+              </span>
+            </div>
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col md:flex-row gap-4 items-stretch md:items-center"
+              className="flex flex-col md:flex-row gap-2 items-stretch md:items-center"
               role="search"
             >
-              <div className="flex-1">
+              <div className="relative flex-1">
+                <FaSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                 <input
                   ref={searchInputRef}
                   type="search"
@@ -288,7 +294,7 @@ function SearchInterface() {
                     }
                   }}
                   placeholder="e.g. 'balanceOf(address)' or '0xa9059cbb'"
-                  className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:border-cerulean-blue-500 focus:ring-2 focus:ring-cerulean-blue-200 transition-all text-sm md:text-base"
+                  className="w-full h-11 pl-9 pr-3 border border-gray-300 rounded-md bg-white text-gray-800 focus:border-cerulean-blue-500 focus:ring-2 focus:ring-cerulean-blue-200 transition-all text-sm md:text-base"
                   autoComplete="off"
                   data-1p-ignore
                 />
@@ -296,30 +302,27 @@ function SearchInterface() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-cerulean-blue-600 hover:bg-cerulean-blue-700 disabled:bg-cerulean-blue-400 text-white py-3 px-4 rounded-md transition-colors cursor-pointer whitespace-nowrap text-sm md:text-base"
+                className="h-11 bg-cerulean-blue-600 hover:bg-cerulean-blue-700 disabled:bg-cerulean-blue-400 text-white px-5 rounded-md transition-colors cursor-pointer whitespace-nowrap text-sm md:text-base"
               >
                 {loading ? "Searching..." : "Search"}
               </button>
             </form>
 
             {/* Example Selectors */}
-            <div className="mt-3">
-              <div className="text-sm font-medium text-gray-800 mb-1.5 flex items-center gap-1">
-                Try Some Examples
-                <HiOutlineCursorClick className="w-4 h-4 text-gray-600" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                {exampleSelectors.map((example, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleExampleClick(example.query)}
-                    className="text-left bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-cerulean-blue-300 px-2.5 py-1.5 rounded-md transition-all cursor-pointer"
-                  >
-                    <div className="font-mono text-xs md:text-sm text-gray-900 break-all">{example.query}</div>
-                    <div className="text-[11px] text-gray-600 leading-snug">{example.description}</div>
-                  </button>
-                ))}
-              </div>
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-gray-500 mr-0.5">Try:</span>
+              {exampleSelectors.map((example, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleExampleClick(example.query)}
+                  data-tooltip-id="global-tooltip"
+                  data-tooltip-content={example.description}
+                  className="font-mono text-xs text-gray-700 bg-gray-50 border border-gray-200 hover:border-cerulean-blue-300 hover:bg-gray-100 rounded-full px-2.5 py-0.5 transition-colors cursor-pointer"
+                >
+                  {example.query.length > 24 ? `${example.query.slice(0, 10)}…${example.query.slice(-4)}` : example.query}
+                </button>
+              ))}
             </div>
 
             {/* <div className="mt-6 text-xs md:text-sm text-gray-600 space-y-1">
